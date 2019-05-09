@@ -3,7 +3,7 @@
 
 
 #if 1
-//深度图和rgb图转化为点云
+//深度图和rgb图转化为点云,现在改成了直接存为ply而不是pcd格式
 #include<iostream>
 
 #include<string>
@@ -19,9 +19,9 @@ using namespace std;
 //PCL库
 
 #include<pcl/io/pcd_io.h>
-
+#include <pcl/io/ply_io.h>
 #include<pcl/point_types.h>
-
+#include <pcl/point_cloud.h>
 
 
 
@@ -86,8 +86,8 @@ int main(int argc, char** argv)
 
 	//使用智能指针，创建一个空点云。这种指针用完会自动释放
 
-	PointCloud::Ptr cloud(new PointCloud);
-
+	//PointCloud::Ptr cloud(new PointCloud);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	//遍历深度图
 
 	for (int m = 0; m<depth.rows; m++)
@@ -108,7 +108,8 @@ int main(int argc, char** argv)
 
 			//d存在值，则向点云增加一个点
 
-			PointT p;
+			//PointT p;
+			pcl::PointXYZRGB p;
 
 			//计算这个点的空间坐标
 
@@ -144,7 +145,9 @@ int main(int argc, char** argv)
 
 	cloud->is_dense = false;
 
-	pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
+	//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
+	pcl::PLYWriter writer;
+	writer.write("C:/vsprojects/cvtest/cvtest/test..ply", *cloud);
 
 	//清楚数据并保存
 
