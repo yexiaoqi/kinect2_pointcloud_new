@@ -2,7 +2,252 @@
 
 
 
-#if 1
+#if 0
+
+/*
+将深度图映射到彩色图上，生成和深度图匹配的对齐彩色图,效果不是很好清晰度不不够
+*/
+#include <opencv2\core\core.hpp>
+#include <opencv2\highgui\highgui.hpp>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <Eigen/Core>
+#include <Eigen/LU>
+#include <thread>
+
+using namespace cv;
+using namespace std;
+
+struct KinectParm
+{
+	float fx_rgb;
+	float fy_rgb;
+	float cx_rgb;
+	float cy_rgb;
+
+	float fx_ir;
+	float fy_ir;
+	float cx_ir;
+	float cy_ir;
+
+	Eigen::Matrix3f R_ir2rgb;
+	Eigen::Vector3f T_ir2rgb;
+};
+
+bool loadParm(KinectParm* kinectParm)
+{
+	// 加载参数
+	ifstream parm("registration.txt");
+	string stringLine;
+	if (parm.is_open())
+	{
+		// rgb相机参数：fx,fy,cx,cy
+		getline(parm, stringLine);
+		stringstream lin(stringLine);
+		string s1, s2, s3, s4, s5, s6, s7, s8, s9;
+		lin >> s1 >> s2 >> s3 >> s4;
+		kinectParm->fx_rgb = atof(s1.c_str());
+		kinectParm->fy_rgb = atof(s2.c_str());
+		kinectParm->cx_rgb = atof(s3.c_str());
+		kinectParm->cy_rgb = atof(s4.c_str());
+		stringLine.clear();
+		// ir相机参数：fx,fy,cx,cy
+		getline(parm, stringLine);
+		stringstream lin2(stringLine);
+		lin2 << stringLine;
+		lin2 >> s1 >> s2 >> s3 >> s4;
+		kinectParm->fx_ir = atof(s1.c_str());
+		kinectParm->fy_ir = atof(s2.c_str());
+		kinectParm->cx_ir = atof(s3.c_str());
+		kinectParm->cy_ir = atof(s4.c_str());
+		stringLine.clear();
+
+		// R_ir2rgb
+		getline(parm, stringLine);
+		stringstream lin3(stringLine);
+		lin3 << stringLine;
+		lin3 >> s1 >> s2 >> s3 >> s4 >> s5 >> s6 >> s7 >> s8 >> s9;
+		kinectParm->R_ir2rgb <<
+			atof(s1.c_str()), atof(s2.c_str()), atof(s3.c_str()),
+			atof(s4.c_str()), atof(s5.c_str()), atof(s6.c_str()),
+			atof(s7.c_str()), atof(s8.c_str()), atof(s9.c_str());
+		stringLine.clear();
+
+		// T_ir2rgb
+		getline(parm, stringLine);
+		stringstream lin4(stringLine);
+		lin4 << stringLine;
+		lin4 >> s1 >> s2 >> s3;
+		kinectParm->T_ir2rgb << atof(s1.c_str()), atof(s2.c_str()), atof(s3.c_str());
+	}
+	else
+	{
+		cout << "parm.txt not right!!!";
+		return false;
+	}
+	cout << "******************************************" << endl;
+
+	cout << "fx_rgb:    " << kinectParm->fx_rgb << endl;
+	cout << "fy_rgb:    " << kinectParm->fy_rgb << endl;
+	cout << "cx_rgb:    " << kinectParm->cx_rgb << endl;
+	cout << "cy_rgb:    " << kinectParm->cy_rgb << endl;
+	cout << "******************************************" << endl;
+	cout << "fx_ir:     " << kinectParm->fx_ir << endl;
+	cout << "fy_ir:     " << kinectParm->fy_ir << endl;
+	cout << "cx_ir:     " << kinectParm->cx_ir << endl;
+	cout << "cy_ir:     " << kinectParm->cy_ir << endl;
+	cout << "******************************************" << endl;
+	cout << "R_ir2rgb:" << endl << kinectParm->R_ir2rgb << endl;
+	cout << "******************************************" << endl;
+	cout << "T_ir2rgb:" << endl << kinectParm->T_ir2rgb << endl;
+	cout << "******************************************" << endl;
+	return true;
+}
+
+
+
+
+int main()
+{
+	// 1. 读取参数
+	KinectParm *parm = new KinectParm();
+	if (!loadParm(parm))
+		return 0;
+	// 2. 载入rgb图片和深度图并显示
+	Mat bgr(1080, 1920, CV_8UC4);
+	bgr = imread("C:/vsprojects/cvtest/cvtest/result/rgb/1.png");
+	Mat depth(424, 512, CV_16UC1);
+	depth = imread("C:/vsprojects/cvtest/cvtest/result/depth/1.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
+	Mat depth2rgb = imread("depth2rgb.jpg");
+	// 3. 显示
+	thread th = std::thread([&] {
+		while (true)
+		{
+			imshow("原始彩色图", bgr);
+			waitKey(1);
+			imshow("原始深度图", depth);
+			waitKey(1);
+			imshow("原始投影图", depth2rgb);
+			waitKey(1);
+		}
+	});
+	// 4. 变换
+
+	// 4.1 计算各个矩阵
+#pragma region  非齐次
+	Eigen::Matrix3f K_ir;           // ir内参矩阵
+	K_ir <<
+		parm->fx_ir, 0, parm->cx_ir,
+		0, parm->fy_ir, parm->cy_ir,
+		0, 0, 1;
+	Eigen::Matrix3f K_rgb;          // rgb内参矩阵
+	K_rgb <<
+		parm->fx_rgb, 0, parm->cx_rgb,
+		0, parm->fy_rgb, parm->cy_rgb,
+		0, 0, 1;
+
+	Eigen::Matrix3f R;
+	Eigen::Vector3f T;
+	R = K_rgb*parm->R_ir2rgb*K_ir.inverse();
+	T = K_rgb*parm->T_ir2rgb;
+
+	cout << "K_rgb:\n" << K_rgb << endl;
+	cout << "K_ir:\n" << K_ir << endl;
+	cout << "R:\n" << R << endl;
+	cout << "T:\n" << T << endl;
+
+	cout << depth.type() << endl;
+
+
+	// 4.2 计算投影
+	Mat result(424, 512, CV_8UC3);
+	int i = 0;
+	for (int row = 0; row < 424; row++)
+	{
+		for (int col = 0; col < 512; col++)
+		{
+			unsigned short* p = (unsigned short*)depth.data;
+			unsigned short depthValue = p[row * 512 + col];
+			//cout << "depthValue       " << depthValue << endl;
+			if (depthValue != -std::numeric_limits<unsigned short>::infinity() && depthValue != -std::numeric_limits<unsigned short>::infinity() && depthValue != 0 && depthValue != 65535)
+			{
+				// 投影到彩色图上的坐标
+				Eigen::Vector3f uv_depth(col, row, 1.0f);                            // !!!p_ir
+				Eigen::Vector3f uv_color = depthValue / 1000.f*R*uv_depth + T / 1000;   // !!!Z_rgb*p_rgb=R*Z_ir*p_ir+T; (除以1000，是为了从毫米变米)
+
+				int X = static_cast<int>(uv_color[0] / uv_color[2]);                // !!!Z_rgb*p_rgb -> p_rgb
+				int Y = static_cast<int>(uv_color[1] / uv_color[2]);                // !!!Z_rgb*p_rgb -> p_rgb
+																					//cout << "X:       " << X << "     Y:      " << Y << endl;
+				if ((X >= 0 && X < 1920) && (Y >= 0 && Y < 1080))
+				{
+					//cout << "X:       " << X << "     Y:      " << Y << endl;
+					result.data[i * 3] = bgr.data[3 * (Y * 1920 + X)];
+					result.data[i * 3 + 1] = bgr.data[3 * (Y * 1920 + X) + 1];
+					result.data[i * 3 + 2] = bgr.data[3 * (Y * 1920 + X) + 2];
+				}
+				else
+				{
+					result.data[i * 3] = 0;
+					result.data[i * 3 + 1] = 0;
+					result.data[i * 3 + 2] = 0;
+				}
+			}
+			else
+			{
+				result.data[i * 3] = 0;
+				result.data[i * 3 + 1] = 0;
+				result.data[i * 3 + 2] = 0;
+			}
+			i++;
+		}
+	}
+	imwrite("registrationResult.png", result);
+	thread th2 = std::thread([&] {
+		while (true)
+		{
+			imshow("结果图", result);
+			waitKey(1);
+		}
+	});
+
+	th.join();
+	th2.join();
+#pragma endregion
+
+
+	system("pause");
+	return 0;
+}
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 //深度图和rgb图转化为点云,现在改成了直接存为ply而不是pcd格式
 #include<iostream>
 
@@ -34,25 +279,28 @@ typedef pcl::PointXYZRGBA PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
 
 //相机内参
-//
-const double camera_factor = 1000;
-
-const double camera_cx = 325.5;
-
-const double camera_cy = 253.5;
-
-const double camera_fx = 518.0;
-
-const double camera_fy = 519.0;
+////
 //const double camera_factor = 1000;
 //
-//const double camera_cx = 259.896;
+//const double camera_cx = 325.5;
 //
-//const double camera_cy = 206.745;
+//const double camera_cy = 253.5;
 //
-//const double camera_fx = 367.749;
+//const double camera_fx = 518.0;
 //
-//const double camera_fy = 367.749;
+//const double camera_fy = 519.0;
+const double camera_factor = 1000;
+
+const double camera_cx = 200;
+
+const double camera_cy = 200;
+//const double camera_fx = 1000;
+//
+//const double camera_fy = 1000;
+
+const double camera_fx = 367.749;
+
+const double camera_fy = 367.749;
 
 //主函数
 
@@ -304,36 +552,19 @@ bool loadParm(KinectParm* kinectParm)
 }
 
 
-
+int countdepth = 1;
+int countrgb = 1;
 
 int main()
 {
+
+
 	// 1. 读取参数
 	KinectParm *parm = new KinectParm();
 	if (!loadParm(parm))
 		return 0;
-	// 2. 载入rgb图片和深度图并显示
-	Mat bgr(1080, 1920, CV_8UC4);
-	bgr = imread("C:/vsprojects/cvtest/cvtest/result/rgb/1.png");
-	Mat depth(424, 512, CV_16UC1);
-	depth = imread("C:/vsprojects/cvtest/cvtest/result/depth/1.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
-	Mat depth2rgb = imread("depth2rgb.jpg");
-	// 3. 显示
-	thread th = std::thread([&] {
-		while (true)
-		{
-			imshow("原始彩色图", bgr);
-			waitKey(1);
-			imshow("原始深度图", depth);
-			waitKey(1);
-			imshow("原始投影图", depth2rgb);
-			waitKey(1);
-		}
-	});
-	// 4. 变换
-
 	// 4.1 计算各个矩阵
-#pragma region  非齐次
+	//#pragma region  非齐次
 	Eigen::Matrix3f K_ir;           // ir内参矩阵
 	K_ir <<
 		parm->fx_ir, 0, parm->cx_ir,
@@ -355,34 +586,79 @@ int main()
 	cout << "R:\n" << R << endl;
 	cout << "T:\n" << T << endl;
 
-	cout << depth.type() << endl;
+	
 
-
-	// 4.2 计算投影
-	Mat result(424, 512, CV_8UC3);
-	int i = 0;
-	for (int row = 0; row < 424; row++)
+	while (true)
 	{
-		for (int col = 0; col < 512; col++)
+		
+		// 2. 载入rgb图片和深度图并显示
+		Mat bgr(1080, 1920, CV_8UC4);
+		std::stringstream str1;
+		if (countrgb < 21)
 		{
-			unsigned short* p = (unsigned short*)depth.data;
-			unsigned short depthValue = p[row * 512 + col];
-			//cout << "depthValue       " << depthValue << endl;
-			if (depthValue != -std::numeric_limits<unsigned short>::infinity() && depthValue != -std::numeric_limits<unsigned short>::infinity() && depthValue != 0 && depthValue != 65535)
+			str1 << "C:/vsprojects/cvtest/cvtest/result/rgb/" << countrgb << ".png";
+			countrgb++;
+		}
+		//bgr = imread(str1.str());
+		bgr = imread("C:/vsprojects/cvtest/cvtest/result/rgb/1.png");
+		Mat depth(424, 512, CV_16UC1);
+		std::stringstream str2;
+		if (countdepth < 21)
+		{
+			str2 << "C:/vsprojects/cvtest/cvtest/result/depth/" << countdepth << ".png";
+			countdepth++;
+		}
+		//depth = imread(str2.str(), IMREAD_ANYDEPTH);
+		depth = imread("C:/vsprojects/cvtest/cvtest/result/depth/1.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
+		Mat depth2rgb = imread("depth2rgb.jpg");
+		// 3. 显示
+		thread th = std::thread([&] {
+			while (true)
 			{
-				// 投影到彩色图上的坐标
-				Eigen::Vector3f uv_depth(col, row, 1.0f);                            // !!!p_ir
-				Eigen::Vector3f uv_color = depthValue / 1000.f*R*uv_depth + T / 1000;   // !!!Z_rgb*p_rgb=R*Z_ir*p_ir+T; (除以1000，是为了从毫米变米)
+				imshow("原始彩色图", bgr);
+				waitKey(1);
+				imshow("原始深度图", depth);
+				waitKey(1);
+				imshow("原始投影图", depth2rgb);
+				waitKey(1);
+			}
+		});
+		// 4. 变换
+		cout << depth.type() << endl;
+		
 
-				int X = static_cast<int>(uv_color[0] / uv_color[2]);                // !!!Z_rgb*p_rgb -> p_rgb
-				int Y = static_cast<int>(uv_color[1] / uv_color[2]);                // !!!Z_rgb*p_rgb -> p_rgb
-																					//cout << "X:       " << X << "     Y:      " << Y << endl;
-				if ((X >= 0 && X < 1920) && (Y >= 0 && Y < 1080))
+		// 4.2 计算投影
+		Mat result(424, 512, CV_8UC3);
+		int i = 0;
+		for (int row = 0; row < 424; row++)
+		{
+			for (int col = 0; col < 512; col++)
+			{
+				unsigned short* p = (unsigned short*)depth.data;
+				unsigned short depthValue = p[row * 512 + col];
+				//cout << "depthValue       " << depthValue << endl;
+				if (depthValue != -std::numeric_limits<unsigned short>::infinity() && depthValue != -std::numeric_limits<unsigned short>::infinity() && depthValue != 0 && depthValue != 65535)
 				{
-					//cout << "X:       " << X << "     Y:      " << Y << endl;
-					result.data[i * 3] = bgr.data[3 * (Y * 1920 + X)];
-					result.data[i * 3 + 1] = bgr.data[3 * (Y * 1920 + X) + 1];
-					result.data[i * 3 + 2] = bgr.data[3 * (Y * 1920 + X) + 2];
+					// 投影到彩色图上的坐标
+					Eigen::Vector3f uv_depth(col, row, 1.0f);                            // !!!p_ir
+					Eigen::Vector3f uv_color = depthValue / 1000.f*R*uv_depth + T / 1000;   // !!!Z_rgb*p_rgb=R*Z_ir*p_ir+T; (除以1000，是为了从毫米变米)
+
+					int X = static_cast<int>(uv_color[0] / uv_color[2]);                // !!!Z_rgb*p_rgb -> p_rgb
+					int Y = static_cast<int>(uv_color[1] / uv_color[2]);                // !!!Z_rgb*p_rgb -> p_rgb
+																						//cout << "X:       " << X << "     Y:      " << Y << endl;
+					if ((X >= 0 && X < 1920) && (Y >= 0 && Y < 1080))
+					{
+						//cout << "X:       " << X << "     Y:      " << Y << endl;
+						result.data[i * 3] = bgr.data[3 * (Y * 1920 + X)];
+						result.data[i * 3 + 1] = bgr.data[3 * (Y * 1920 + X) + 1];
+						result.data[i * 3 + 2] = bgr.data[3 * (Y * 1920 + X) + 2];
+					}
+					else
+					{
+						result.data[i * 3] = 0;
+						result.data[i * 3 + 1] = 0;
+						result.data[i * 3 + 2] = 0;
+					}
 				}
 				else
 				{
@@ -390,28 +666,28 @@ int main()
 					result.data[i * 3 + 1] = 0;
 					result.data[i * 3 + 2] = 0;
 				}
+				i++;
 			}
-			else
-			{
-				result.data[i * 3] = 0;
-				result.data[i * 3 + 1] = 0;
-				result.data[i * 3 + 2] = 0;
-			}
-			i++;
 		}
-	}
-	imwrite("registrationResult.png", result);
-	thread th2 = std::thread([&] {
-		while (true)
-		{
-			imshow("结果图", result);
-			waitKey(1);
-		}
-	});
 
-	th.join();
-	th2.join();
-#pragma endregion
+
+		std::stringstream str3;
+		str3 << "C:/vsprojects/cvtest/cvtest/result/rgb2/" << countrgb << ".png";
+		imwrite(str3.str(), result);
+
+		//imwrite("registrationResult.png", result);
+		thread th2 = std::thread([&] {
+			while (true)
+			{
+				imshow("结果图", result);
+				waitKey(1);
+			}
+		});
+
+		th.join();
+		th2.join();
+	}
+//#pragma endregion
 
 
 	system("pause");
@@ -628,7 +904,7 @@ int main()
 #endif
 
 
-#if 0
+#if 1
 	//获取rgb图和深度图成功
 #include <kinect.h>
 #include <iostream>
@@ -644,6 +920,26 @@ int main()
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include<string>
+
+
+	//定义点云类型
+
+	typedef pcl::PointXYZRGBA PointT;
+
+	typedef pcl::PointCloud<PointT> PointCloud;
+
+	////相机内参
+	const double camera_factor = 1000;
+
+	//const double camera_cx = 259.896;
+
+	//const double camera_cy = 206.745;
+
+	//const double camera_fx = 367.749;
+
+	//const double camera_fy = 367.749;
+
+
 	using namespace cv;
 	using namespace std;
 
@@ -750,6 +1046,7 @@ int main()
 		// 三个图片格式
 		Mat i_rgb(1080, 1920, CV_8UC4);      //注意：这里必须为4通道的图，Kinect的数据只能以Bgra格式传出
 		Mat i_depth(424, 512, CV_8UC1);
+		//Mat i_depth(424, 512, CV_16UC1);
 		//Mat i_rgb(480,640, CV_8UC4);      //注意：这里必须为4通道的图，Kinect的数据只能以Bgra格式传出
 		//Mat i_depth(480, 640, CV_8UC1);
 		Mat i_ir(424, 512, CV_16UC1);
@@ -757,6 +1054,7 @@ int main()
 		UINT16 *depthData = new UINT16[424 * 512];
 		IMultiSourceFrame* m_pMultiFrame = nullptr;
 		int sample_id = 1;
+		
 		while (true)
 		{
 			// 获取新的一个多源数据帧
@@ -798,6 +1096,7 @@ int main()
 					//for (int i = 0; i < 640 * 480; i++)
 				{
 					// 0-255深度图，为了显示明显，只取深度数据的低8位
+					//BYTE intensity = static_cast<BYTE>(depthData[i] % 65536);
 					BYTE intensity = static_cast<BYTE>(depthData[i] % 256);
 					reinterpret_cast<BYTE*>(i_depth.data)[i] = intensity;
 				}
@@ -816,9 +1115,9 @@ int main()
 			// 显示
 			imshow("rgb", i_rgb);
 			std::stringstream str1;
-			if (countrgb < 21)
+			if (countrgb < 2)
 			{
-				str1 << "C:/vsprojects/cvtest/cvtest/result/rgb/" << countrgb << ".png";
+				str1 << "C:/vsprojects/test/test/result/rgb/" << countrgb << ".png";
 				countrgb++;
 			}
 			imwrite(str1.str(), i_rgb);
@@ -828,13 +1127,95 @@ int main()
 				break;
 			imshow("depth", i_depth);
 			std::stringstream str2;
-			if (countdepth < 21)
+			if (countdepth < 2)
 			{
-				str2 << "C:/vsprojects/cvtest/cvtest/result/depth/" << countdepth << ".png";
+				str2 << "C:/vsprojects/test/test/result/depth/" << countdepth << ".png";
 				countdepth++;
 			}
 			imwrite(str2.str(), i_depth);
 			//imwrite("C:/vsprojects/cvtest/cvtest/result/depth/yqydepth.png", i_depth);
+
+
+
+
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+			//遍历深度图
+
+			for (int m = 0; m<i_depth.rows; m++)
+
+				for (int n = 0; n<i_depth.cols; n++)
+
+				{
+
+					//获取深度图中(m,n)处的值
+
+					ushort d = i_depth.ptr<ushort>(m)[n];
+
+					//d可能没有值，若如此，跳过此点
+
+					if (d == 0)
+
+						continue;
+
+					//d存在值，则向点云增加一个点
+
+					//PointT p;
+					pcl::PointXYZRGB p;
+
+					//计算这个点的空间坐标
+
+
+					p.z = double(d) / camera_factor;
+					p.x = n ;
+
+					p.y = m ;
+
+					/*p.x = (n - camera_cx)*p.z / camera_fx;
+
+					p.y = (m - camera_cy)*p.z / camera_fy;*/
+
+					//从rgb图像中获取它的颜色
+
+					//rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
+
+					p.b = i_rgb.ptr<uchar>(m)[n * 3];
+
+					p.g = i_rgb.ptr<uchar>(m)[n * 3 + 1];
+
+					p.r = i_rgb.ptr<uchar>(m)[n * 3 + 2];
+
+					//把p加入到点云中
+
+					cloud->points.push_back(p);
+
+				}
+
+			//设置并保存点云
+
+			cloud->height = 1;
+
+			cloud->width = cloud->points.size();
+
+			cout << "point cloud size=" << cloud->points.size() << endl;
+
+			cloud->is_dense = false;
+
+			//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
+			pcl::PLYWriter writer;
+			writer.write("C:/vsprojects/cvtest/cvtest/pointcloudyqy190511.ply", *cloud);
+
+			//清楚数据并保存
+
+			cloud->points.clear();
+
+			cout << "Point cloud saved." << endl;
+
+
+
+
+
+
+
 			if (waitKey(1) == VK_ESCAPE)
 				break;
 			imshow("ir", i_ir);
