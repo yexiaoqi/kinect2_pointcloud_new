@@ -1266,7 +1266,7 @@ int main()
 
 
 #if 1
-	//尝试解决深度图中墙面截断问题，存为16位图像成功，但是点云不太对
+	//尝试解决深度图中墙面截断问题，存为16位图像成功，增加内参后点云也对了
 #include <stdio.h>
 
 #include <kinect.h>
@@ -1291,6 +1291,14 @@ int main()
 
 	////相机内参
 	const double camera_factor = 500;
+
+	const double camera_cx = 256;
+
+	const double camera_cy = 212;
+
+	const double camera_fx = 367.749;
+
+	const double camera_fy = 367.749;
 	using namespace cv;
 
 	// 转换depth图像到cv::Mat
@@ -1411,13 +1419,13 @@ int main()
 
 				//p.z = double(d); 
 				p.z = double(d) / camera_factor;
-				p.x = n;
+				/*p.x = n;
 
 				p.y = m;
+*/
+				p.x = (n - camera_cx)*p.z / camera_fx;
 
-				/*p.x = (n - camera_cx)*p.z / camera_fx;
-
-				p.y = (m - camera_cy)*p.z / camera_fy;*/
+				p.y = (m - camera_cy)*p.z / camera_fy;
 
 				//从rgb图像中获取它的颜色
 
