@@ -289,7 +289,7 @@ typedef pcl::PointCloud<PointT> PointCloud;
 //const double camera_fx = 518.0;
 //
 //const double camera_fy = 519.0;
-const double camera_factor = 500;
+const double camera_factor = 1;
 
 const double camera_cx = 200;
 
@@ -298,9 +298,12 @@ const double camera_cy = 200;
 //
 //const double camera_fy = 1000;
 
-const double camera_fx = 367.749;
+//const double camera_fx = 367.749;
+//
+//const double camera_fy = 367.749;
+const double camera_fx = 284;
 
-const double camera_fy = 367.749;
+const double camera_fy = 284;
 
 //主函数
 
@@ -395,7 +398,7 @@ int main(int argc, char** argv)
 
 	//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 	pcl::PLYWriter writer;
-	writer.write("C:/vsprojects/test/test/ddroutput1905122.ply", *cloud);
+	writer.write("C:/vsprojects/test/test/ddroutput190513.ply", *cloud);
 
 	//清楚数据并保存
 
@@ -1474,7 +1477,7 @@ int main()
 
 
 #if 1
-	//获取rgb图和深度图成功，尝试解决深度图中墙面截断问题，存为16位图像成功，增加内参后点云也对了
+	//获取rgb图和深度图成功，尝试解决深度图中墙面截断问题，存为16位图像成功，增加内参后点云也对了，现在存储的rgb图是已经和深度图对齐的rgb图
 #include <kinect.h>
 #include <iostream>
 #include <opencv2\opencv.hpp>
