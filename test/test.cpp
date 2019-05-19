@@ -246,7 +246,6 @@ int main()
 
 
 
-
 #if 0
 //深度图和rgb图转化为点云,现在改成了直接存为ply而不是pcd格式
 #include<iostream>
@@ -280,6 +279,15 @@ typedef pcl::PointCloud<PointT> PointCloud;
 
 //相机内参
 ////
+const double camera_factor = 1000;
+
+const double camera_cx = 254.616;
+
+const double camera_cy = 207.801;
+
+const double camera_fx = 364.547;
+
+const double camera_fy = 364.547;
 //const double camera_factor = 1000;
 //
 //const double camera_cx = 325.5;
@@ -289,11 +297,11 @@ typedef pcl::PointCloud<PointT> PointCloud;
 //const double camera_fx = 518.0;
 //
 //const double camera_fy = 519.0;
-const double camera_factor = 1;
-
-const double camera_cx = 200;
-
-const double camera_cy = 200;
+//const double camera_factor = 1;
+//
+//const double camera_cx = 200;
+//
+//const double camera_cy = 200;
 //const double camera_fx = 1000;
 //
 //const double camera_fy = 1000;
@@ -301,9 +309,9 @@ const double camera_cy = 200;
 //const double camera_fx = 367.749;
 //
 //const double camera_fy = 367.749;
-const double camera_fx = 284;
-
-const double camera_fy = 284;
+//const double camera_fx = 284;
+//
+//const double camera_fy = 284;
 
 //主函数
 
@@ -321,12 +329,12 @@ int main(int argc, char** argv)
 
 	//rgb图像是8UC3的彩色图像
 
-	//rgb = cv::imread("C:/vsprojects/test/test/result/rgb/1.png");
+	rgb = cv::imread("C:/vsprojects/test/test/inputimg190519/rgb/1.png");
 
 	//depth是16UC1的单通道图像，注意flags设置为-1，表示读取原始数据不做修改
 
 	/*depth = cv::imread("C:/vsprojects/cvtest/cvtest/190509yqy/dt_1.png", -1);*/
-	depth = cv::imread("C:/vsprojects/test/test/1905122yqy/dt_1.png", -1);
+	depth = cv::imread("C:/vsprojects/test/test/inputimg190519/depth/1.png", -1);
 	//rgb = cv::imread("C:/vsprojects/cvtest/cvtest/20170907/group1/color_map/frame_000001.png");
 
 	////depth是16UC1的单通道图像，注意flags设置为-1，表示读取原始数据不做修改
@@ -374,11 +382,11 @@ int main(int argc, char** argv)
 
 			//rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
 
-		/*	p.b = rgb.ptr<uchar>(m)[n * 3];
+			p.b = rgb.ptr<uchar>(m)[n * 3];
 
 			p.g = rgb.ptr<uchar>(m)[n * 3 + 1];
 
-			p.r = rgb.ptr<uchar>(m)[n * 3 + 2];*/
+			p.r = rgb.ptr<uchar>(m)[n * 3 + 2];
 
 			//把p加入到点云中
 
@@ -398,7 +406,7 @@ int main(int argc, char** argv)
 
 	//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 	pcl::PLYWriter writer;
-	writer.write("C:/vsprojects/test/test/ddroutput190513.ply", *cloud);
+	writer.write("C:/vsprojects/test/test/kinectinput190519.ply", *cloud);
 
 	//清楚数据并保存
 
@@ -701,12 +709,21 @@ int main()
 
 
 
-#if 0
-//生成点云成功
+#if 1
+//生成点云成功,但保存的颜色有问题
 #include "kinect2_grabber.h"
 #include <pcl/visualization/pcl_visualizer.h>
+#include <iostream>
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
+#include <kinect.h>
+#include <pcl/visualization/cloud_viewer.h> 
+#include <pcl/visualization/pcl_visualizer.h>
+#include <opencv2/opencv.hpp>
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
 
-typedef pcl::PointXYZRGBA PointType;
+typedef pcl::PointXYZRGB PointType;
 
 int main(int argc, char* argv[])
 {
@@ -736,18 +753,34 @@ int main(int argc, char* argv[])
 
 	// Start Grabber
 	grabber->start();
-
+	int count = 0;
 	while (!viewer->wasStopped()) {
 		// Update Viewer
 		viewer->spinOnce();
 
 		boost::mutex::scoped_try_lock lock(mutex);
-		pcl::PLYWriter writer;
-		writer.write("yqyou2.ply", *cloud);
+
+		/*pcl::PLYWriter writer;
+		writer.write("kinectcloud190519.ply", *cloud);*/
+		if (count == 0)
+		{
+			pcl::PLYWriter writer;
+			writer.write("kinectcloud190519.ply", *cloud);
+			
+			//pcl::io::savePCDFileASCII("kinectcloud190519.ply",*cloud);
+			count += 1;
+		}
+		
 		if (lock.owns_lock() && cloud) {
 			// Update Point Cloud
 			if (!viewer->updatePointCloud(cloud, "cloud")) {
 				viewer->addPointCloud(cloud, "cloud");
+				//if (count == 0)
+				//{
+				//	
+				//	pcl::io::savePCDFileASCII("kinectcloud1905192.ply", *cloud);
+				//	//count += 1;
+				//}
 
 			}
 		}
@@ -763,6 +796,13 @@ int main(int argc, char* argv[])
 	return 0;
 }
 #endif
+
+
+
+
+
+
+
 
 
 #if 0
@@ -1476,7 +1516,7 @@ int main()
 #endif
 
 
-#if 1
+#if 0
 	//获取rgb图和深度图成功，尝试解决深度图中墙面截断问题，存为16位图像成功，增加内参后点云也对了，现在存储的rgb图是已经和深度图对齐的rgb图
 #include <kinect.h>
 #include <iostream>
@@ -1650,12 +1690,14 @@ int main()
 		// 三个图片格式
 		Mat i_rgb(1080, 1920, CV_8UC4);      //注意：这里必须为4通道的图，Kinect的数据只能以Bgra格式传出
 		Mat i_depth(424, 512, CV_16UC1);
+		//Mat i_depth_32bir(424, 512, CV_32S);
 		//Mat i_depth(424, 512, CV_16UC1);
 		//Mat i_rgb(480,640, CV_8UC4);      //注意：这里必须为4通道的图，Kinect的数据只能以Bgra格式传出
 		//Mat i_depth(480, 640, CV_8UC1);
 		Mat i_ir(424, 512, CV_16UC1);
 
 		UINT16 *depthData = new UINT16[424 * 512];
+		//INT32 *depthData_32bit = new INT32[424 * 512];
 		IMultiSourceFrame* m_pMultiFrame = nullptr;
 		int sample_id = 1;
 		
@@ -1727,6 +1769,7 @@ int main()
 				hr = m_pDepthFrame->get_DepthMaxReliableDistance(&nDepthMaxReliableDistance);
 		
 				hr = m_pDepthFrame->CopyFrameDataToArray(424 * 512, depthData);
+
 				i_depth=ConvertMat_1(depthData, 512, 424, nDepthMinReliableDistance, nDepthMaxReliableDistance);
 				//hr = m_pDepthFrame->CopyFrameDataToArray(480 * 640, depthData);
 				//for (int i = 0; i < 512 * 424; i++)
@@ -1762,11 +1805,11 @@ int main()
 
 
 			// 显示
-			imshow("rgb", i_depthToRgb);
+			imshow("rgb", i_depthToRgb);		
 			std::stringstream str1;
-			if (countrgb < 21)
+			if (countrgb < 2)
 			{
-				str1 << "C:/vsprojects/test/test/result2/rgb/" << countrgb << ".png";
+				str1 << "C:/vsprojects/test/test/result3/rgb/" << countrgb << ".png";
 				countrgb++;
 			}
 			imwrite(str1.str(), i_depthToRgb);
@@ -1776,10 +1819,14 @@ int main()
 				break;
 			//cv::equalizeHist(i_depth, i_depth);//均衡化，为了提高显示效果
 			imshow("depth", i_depth);
+			//Mat img32BIT;
+			////float scaleFactor = 1.0; // Or what you want 
+			//i_depth.convertTo(img32BIT, CV_32S, 1.0 / 65535.0f);
+	
 			std::stringstream str2;
-			if (countdepth < 21)
+			if (countdepth <2)
 			{
-				str2 << "C:/vsprojects/test/test/result2/depth/" << countdepth << ".png";
+				str2 << "C:/vsprojects/test/test/result3/depth/" << countdepth << ".png";
 				countdepth++;
 			}
 			imwrite(str2.str(), i_depth);
@@ -1828,12 +1875,12 @@ int main()
 
 					//rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
 
-					/*p.b = i_rgb.ptr<uchar>(m)[n * 3];
+					p.b = i_rgb.ptr<uchar>(m)[n * 3];
 
 					p.g = i_rgb.ptr<uchar>(m)[n * 3 + 1];
 
 					p.r = i_rgb.ptr<uchar>(m)[n * 3 + 2];
-*/
+
 					//把p加入到点云中
 
 					cloud->points.push_back(p);
@@ -1852,7 +1899,7 @@ int main()
 
 			//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 			pcl::PLYWriter writer;
-			writer.write("C:/vsprojects/cvtest/cvtest/pointcloudyqy190511.ply", *cloud);
+			writer.write("C:/vsprojects/test/test/kinectcloud190519.ply", *cloud);
 
 			//清楚数据并保存
 
