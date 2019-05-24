@@ -35,5 +35,26 @@
     <ClCompile Include="test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="opengltest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="colorimg_map2_depthimg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pcd2ply.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="kinect_get_cloud_directly.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pcl_upsample_cloud.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="kinect_get_coloranddepth_2_cloud.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="inputimg_2_cloud.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
