@@ -226,7 +226,7 @@ int main()
 
 
 
-//尝试多张图像
+//尝试多张图像，成功
 #if 0
 /*
 将深度图映射到彩色图上，生成和深度图匹配的对齐彩色图,能够运行
@@ -478,7 +478,7 @@ int main()
 
 
 
-//尝试深度图映射到rgb图，得到稀疏的1920*1080深度图
+//尝试深度图映射到rgb图，得到稀疏的1920*1080深度图，成功
 #if 0
 /*
 将深度图映射到彩色图上，生成和深度图匹配的对齐彩色图,能够运行
@@ -651,31 +651,31 @@ int main()
 		std::stringstream str1;
 		if (countrgb < 2)
 		{
-			str1 << "C:/vsprojects/test/test/result/rgb/" << countrgb << ".png";
+			str1 << "C:/vsprojects/test/test/result190604/rgb19201080/" << countrgb << ".png";
 			countrgb++;
 		}
 		//bgr = imread(str1.str());
-		bgr = imread("C:/vsprojects/test/test/result/rgb/1.png");
+		bgr = imread("C:/vsprojects/test/test/result190604/rgb19201080/19.png");
 		Mat depth(424, 512, CV_16UC1);
 		std::stringstream str2;
 		if (countdepth < 2)
 		{
-			str2 << "C:/vsprojects/test/test/result/depth/" << countdepth << ".png";
+			str2 << "C:/vsprojects/test/test/result190604/depth/" << countdepth << ".png";
 			countdepth++;
 		}
 		//depth = imread(str2.str(), IMREAD_ANYDEPTH);
-		depth = imread("C:/vsprojects/test/test/result/depth/1.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
+		depth = imread("C:/vsprojects/test/test/result190604/depth/19.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
 		Mat depth2rgb = imread("depth2rgb.jpg");
 		// 3. 显示
 		thread th = std::thread([&] {
 			while (true)
 			{
 				imshow("原始彩色图", bgr);
-				waitKey(1);
+				waitKey(0);
 				imshow("原始深度图", depth);
-				waitKey(1);
+				waitKey(0);
 				imshow("原始投影图", depth2rgb);
-				waitKey(1);
+				waitKey(0);
 			}
 		});
 		// 4. 变换
@@ -739,7 +739,7 @@ int main()
 			while (true)
 			{
 				imshow("结果图", result);
-				waitKey(1);
+				waitKey(0);
 			}
 		});
 
@@ -749,8 +749,19 @@ int main()
 	//#pragma endregion
 
 
-	system("pause");
+	//system("pause");
 	return 0;
 }
 #endif
+
+
+
+
+
+
+
+
+
+
+
 

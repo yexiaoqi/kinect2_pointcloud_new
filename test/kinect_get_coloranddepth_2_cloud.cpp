@@ -1522,7 +1522,8 @@ int main()
 
 
 //成功同时存储1920*1080rgb图像，512*424rgb图和512*424depth图
-#if 1
+	//尝试存用于标定的红外图
+#if 0
 	//获取rgb图和深度图成功，尝试解决深度图中墙面截断问题，存为16位图像成功，增加内参后点云也对了，现在存储的rgb图是已经和深度图对齐的rgb图
 #include <kinect.h>
 #include <iostream>
@@ -1814,13 +1815,13 @@ int main()
 			imshow("rgb", i_depthToRgb);
 			std::stringstream str1;
 			std::stringstream str3;
-			if (countrgb < 20)
+			if (countrgb < 100)
 			{
-				str1 << "C:/vsprojects/test/test/result190604/rgb512424/" << countrgb << ".png";
-				str3 << "C:/vsprojects/test/test/result190604/rgb19201080/" << countrgb << ".png";
+				str1 << "C:/vsprojects/test/test/biaoding/rgb512424/" << countrgb << ".png";
+				str3 << "C:/vsprojects/test/test/biaoding/rgb19201080/" << countrgb << ".png";
 				countrgb++;
 			}
-			imwrite(str1.str(), i_depthToRgb);
+			//imwrite(str1.str(), i_depthToRgb);//存512*424rgb图，暂时注释
 			imwrite(str3.str(), i_rgb);
 
 
@@ -1834,12 +1835,15 @@ int main()
 			//i_depth.convertTo(img32BIT, CV_32S, 1.0 / 65535.0f);
 
 			std::stringstream str2;
-			if (countdepth <20)
+			std::stringstream str4;
+			if (countdepth <100)
 			{
-				str2 << "C:/vsprojects/test/test/result190604/depth/" << countdepth << ".png";
+				str2 << "C:/vsprojects/test/test/biaoding/depth/" << countdepth << ".png";
+				str4 << "C:/vsprojects/test/test/biaoding/ir/" << countdepth << ".png";
 				countdepth++;
 			}
 			imwrite(str2.str(), i_depth);
+			imwrite(str4.str(), i_ir);
 			//imwrite("C:/vsprojects/cvtest/cvtest/result/depth/yqydepth.png", i_depth);
 
 
