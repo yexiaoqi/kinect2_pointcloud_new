@@ -33,7 +33,6 @@ int main()
 
 
 
-
 #if 0
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -141,6 +140,40 @@ int main()
 	/*imshow("test",imag);
 	waitKey(0);*/
 	imwrite("24bit.png", imag);
+	return 0;
+}
+#endif
+
+
+
+
+#if 0
+//联合双边滤波 只能用于8u或32f
+#include <opencv2/opencv.hpp>
+#include <ximgproc.hpp>
+
+int main()
+{
+	cv::Mat src = cv::imread("C:/vsprojects/Robust-Color-Guided-Depth-Map-Restoration-master/Robust-Color-Guided-Depth-Map-Restoration-master/yqy/2inpaintopencv.png", 0); // 原始带噪声的深度图
+	cv::Mat joint = cv::imread("C:/vsprojects/Robust-Color-Guided-Depth-Map-Restoration-master/Robust-Color-Guided-Depth-Map-Restoration-master/yqy/2inpaintopencvresize.png", 0);
+
+	cv::Mat dst;
+	//int64 begin = cvGetTickCount();
+	cv::ximgproc::jointBilateralFilter(joint, src, dst, -1, 3, 9);
+	//int64 end = cvGetTickCount();
+
+	//float time = (end - begin) / (cvGetTickFrequency() * 1000.);
+	//printf("time = %fms\n", time);
+
+	imshow("src", src);
+	imshow("joint", joint);
+	imshow("jointBilateralFilter", dst);
+	imwrite("C:/vsprojects/Robust-Color-Guided-Depth-Map-Restoration-master/Robust-Color-Guided-Depth-Map-Restoration-master/yqy/src.png", src);
+	imwrite("C:/vsprojects/Robust-Color-Guided-Depth-Map-Restoration-master/Robust-Color-Guided-Depth-Map-Restoration-master/yqy/joint.png", joint);
+	imwrite("C:/vsprojects/Robust-Color-Guided-Depth-Map-Restoration-master/Robust-Color-Guided-Depth-Map-Restoration-master/yqy/2jointBilateralFilter.png", dst);
+	cv::waitKey(0);
+
+
 	return 0;
 }
 #endif
