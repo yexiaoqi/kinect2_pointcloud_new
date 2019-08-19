@@ -1815,10 +1815,10 @@ int main()
 			imshow("rgb", i_depthToRgb);
 			std::stringstream str1;
 			std::stringstream str3;
-			if (countrgb < 100)
+			if (countrgb < 5)
 			{
-				str1 << "C:/vsprojects/test/test/biaoding/rgb512424/" << countrgb << ".png";
-				str3 << "C:/vsprojects/test/test/biaoding/rgb19201080/" << countrgb << ".png";
+				str1 << "C:/vsprojects/test/test/result190624/rgb512424/" << countrgb << ".png";
+				str3 << "C:/vsprojects/test/test/result190624/rgb19201080/" << countrgb << ".png";
 				countrgb++;
 			}
 			//imwrite(str1.str(), i_depthToRgb);//´æ512*424rgbÍ¼£¬ÔÝÊ±×¢ÊÍ
@@ -1836,10 +1836,10 @@ int main()
 
 			std::stringstream str2;
 			std::stringstream str4;
-			if (countdepth <100)
+			if (countdepth <5)
 			{
-				str2 << "C:/vsprojects/test/test/biaoding/depth/" << countdepth << ".png";
-				str4 << "C:/vsprojects/test/test/biaoding/ir/" << countdepth << ".png";
+				str2 << "C:/vsprojects/test/test/result190624/depth/" << countdepth << ".png";
+				str4 << "C:/vsprojects/test/test/result190624/ir/" << countdepth << ".png";
 				countdepth++;
 			}
 			imwrite(str2.str(), i_depth);

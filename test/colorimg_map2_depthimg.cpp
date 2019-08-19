@@ -651,20 +651,20 @@ int main()
 		std::stringstream str1;
 		if (countrgb < 2)
 		{
-			str1 << "C:/vsprojects/test/test/result190604/rgb19201080/" << countrgb << ".png";
+			str1 << "C:/vsprojects/test/test/result190624/rgb/" << countrgb << ".png";
 			countrgb++;
 		}
 		//bgr = imread(str1.str());
-		bgr = imread("C:/vsprojects/test/test/result190604/rgb19201080/19.png");
+		bgr = imread("C:/vsprojects/test/test/result190624/rgb/4.png");
 		Mat depth(424, 512, CV_16UC1);
 		std::stringstream str2;
 		if (countdepth < 2)
 		{
-			str2 << "C:/vsprojects/test/test/result190604/depth/" << countdepth << ".png";
+			str2 << "C:/vsprojects/test/test/result190624/depth/" << countdepth << ".png";
 			countdepth++;
 		}
 		//depth = imread(str2.str(), IMREAD_ANYDEPTH);
-		depth = imread("C:/vsprojects/test/test/result190604/depth/19.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
+		depth = imread("C:/vsprojects/test/test/result190624/depth/4.png", IMREAD_ANYDEPTH);   // 图片读入后的格式不一定和定义时候的一样，比如这里读入后的格式就是8UC3
 		Mat depth2rgb = imread("depth2rgb.jpg");
 		// 3. 显示
 		thread th = std::thread([&] {
@@ -731,7 +731,7 @@ int main()
 		USHORT nDepthMaxReliableDistance = 0;
 		yqydepth = ConvertMat_1(yqy16depthData, 1920, 1080, nDepthMinReliableDistance, nDepthMaxReliableDistance);
 		std::stringstream str3;
-		str3 << "C:/vsprojects/test/test/imgresult/" << countrgb << ".png";
+		str3 << "C:/vsprojects/test/test/result190624/result/" << countrgb << ".png";
 		imwrite(str3.str(), yqydepth);
 
 		//imwrite("registrationResult.png", result);

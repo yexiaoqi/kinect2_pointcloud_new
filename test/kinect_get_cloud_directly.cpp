@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#if 0 
+#if 0
 //生成点云成功,按s保存点云,这段代码得到的pcd可以转ply
 #include "kinect2_grabber.h"
 #include <pcl/visualization/pcl_visualizer.h>

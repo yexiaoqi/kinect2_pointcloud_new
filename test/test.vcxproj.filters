@@ -59,5 +59,14 @@
     <ClCompile Include="opencvinpaint.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="voxelgrid.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ply2pcd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="statisticalOutlierRemoval.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

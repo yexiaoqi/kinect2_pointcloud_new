@@ -82,13 +82,13 @@ int main(int argc, char** argv)
 
 	//rgb图像是8UC3的彩色图像
 
-	rgb = cv::imread("C:/vsprojects/test/test/inputimg190519/rgb/1.png");
+	rgb = cv::imread("C:/vsprojects/test/test/result190604/rgb512424/19.png");
 
 	//depth是16UC1的单通道图像，注意flags设置为-1，表示读取原始数据不做修改
 
 	/*depth = cv::imread("C:/vsprojects/cvtest/cvtest/190509yqy/dt_1.png", -1);*/
 	//depth = cv::imread("C:/vsprojects/test/test/inputimg190519/depth/1.png", -1);
-	depth = cv::imread("C:/vsprojects/kinect_depth_inpainting_and_filtering/kinect_depth_inpainting_and_filtering/inpaint.png", -1);
+	depth = cv::imread("C:/vsprojects/LiveScan3D-master/LiveScan3D-master/result/inpaint2.png", -1);
 	//rgb = cv::imread("C:/vsprojects/cvtest/cvtest/20170907/group1/color_map/frame_000001.png");
 
 	////depth是16UC1的单通道图像，注意flags设置为-1，表示读取原始数据不做修改
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
 
 	//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 	pcl::PLYWriter writer;
-	writer.write("C:/vsprojects/test/test/16bitonlyinpaint190530.ply", *cloud);
+	writer.write("C:/vsprojects/LiveScan3D-master/LiveScan3D-master/result/inpaint2.ply", *cloud);
 
 	//清楚数据并保存
 
@@ -495,7 +495,7 @@ int main(int argc, char** argv)
 
 
 //针对和彩色图对齐的1920*1080深度图，将其转化为点云，不使用内参直接映射
-#if 1
+#if 0
 //深度图和rgb图转化为点云,现在改成了直接存为ply而不是pcd格式
 #include<iostream>
 
@@ -605,13 +605,13 @@ int main(int argc, char** argv)
 
 	//rgb图像是8UC3的彩色图像
 
-	rgb = cv::imread("C:/vsprojects/test/test/result190604/rgb19201080/19.png");
+	rgb = cv::imread("C:/vsprojects/test/test/result190624/rgb/4.png");
 
 	//depth是16UC1的单通道图像，注意flags设置为-1，表示读取原始数据不做修改
 
 	/*depth = cv::imread("C:/vsprojects/cvtest/cvtest/190509yqy/dt_1.png", -1);*/
 	//depth = cv::imread("C:/vsprojects/test/test/imgresult/2.png", -1);
-	depth = cv::imread("C:/vsprojects/Robust-Color-Guided-Depth-Map-Restoration-master/Robust-Color-Guided-Depth-Map-Restoration-master/yqy/2inpaintopencvbilmat.png", -1);
+	depth = cv::imread("C:/vsprojects/test/test/result190624/result/4inpaint3.png", -1);
 	//rgb = cv::imread("C:/vsprojects/cvtest/cvtest/20170907/group1/color_map/frame_000001.png");
 
 	////depth是16UC1的单通道图像，注意flags设置为-1，表示读取原始数据不做修改
@@ -688,7 +688,7 @@ int main(int argc, char** argv)
 
 	//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 	pcl::PLYWriter writer;
-	writer.write("C:/vsprojects/test/test/result190604/19060620inpaintopencv.ply", *cloud);
+	writer.write("C:/vsprojects/test/test/result190624/result/19060624inpaint3.ply", *cloud);
 
 	//清楚数据并保存
 
@@ -700,3 +700,7 @@ int main(int argc, char** argv)
 
 }
 #endif
+
+
+
+
