@@ -159,6 +159,7 @@
     <ClCompile Include="opencvinpaint.cpp" />
     <ClCompile Include="opengltest.cpp" />
     <ClCompile Include="pcd2ply.cpp" />
+    <ClCompile Include="pcd2voxel.cpp" />
     <ClCompile Include="pcl_upsample_cloud.cpp" />
     <ClCompile Include="ply2pcd.cpp" />
     <ClCompile Include="statisticalOutlierRemoval.cpp" />
@@ -169,6 +170,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="voxel2pcd.cpp" />
     <ClCompile Include="voxelgrid.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -43,14 +43,14 @@ int main()
 }
 #endif
 
-
+#if 1
 //³É¹¦
 int main()
 {
 	//string input_filename = "C:/vsprojects/cvtest/cvtest/pointcloud.pcd";
 	//string output_filename = "C:/vsprojects/cvtest/cvtest/pointcloud.ply";
-	string input_filename = "./xiaowenstatisticalOutlierRemoval1.pcd";
-	string output_filename = "./xiaowenstatisticalOutlierRemoval5.ply";
+	string input_filename = "./xiaowenstatisticalOutlierRemoval_inlier190821.pcd";
+	string output_filename = "./xiaowenstatisticalOutlierRemoval_inlier190821.ply";
 	//pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 	if (loadPCDFile(input_filename,*cloud) < 0)
@@ -63,3 +63,4 @@ int main()
 	
 	return 0;
 }
+#endif

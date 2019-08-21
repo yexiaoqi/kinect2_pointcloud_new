@@ -68,5 +68,11 @@
     <ClCompile Include="statisticalOutlierRemoval.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="pcd2voxel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="voxel2pcd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
