@@ -49,8 +49,8 @@ int main()
 {
 	//string input_filename = "C:/vsprojects/cvtest/cvtest/pointcloud.pcd";
 	//string output_filename = "C:/vsprojects/cvtest/cvtest/pointcloud.ply";
-	string input_filename = "./xiaowenstatisticalOutlierRemoval_inlier190821.pcd";
-	string output_filename = "./xiaowenstatisticalOutlierRemoval_inlier190821.ply";
+	string input_filename = "./xiaowenstatisticalOutlierRemoval_inlier190901_texture.pcd";
+	string output_filename = "./xiaowenstatisticalOutlierRemoval_inlier190901_texture.ply";
 	//pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 	if (loadPCDFile(input_filename,*cloud) < 0)

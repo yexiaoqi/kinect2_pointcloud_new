@@ -31,6 +31,10 @@
 #include <pcl/point_cloud.h>
 #include <pcl/io/pcd_io.h>
 
+#include<vector>
+
+#include <string>
+
 
 // TODO: - Test input of multiple binvox files
 //       - Use boost to check for missing file extension
@@ -132,7 +136,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	pcl::PointCloud<pcl::PointXYZ> cloud;
+	pcl::PointCloud<pcl::PointXYZ> cloud;//comment yqy
+	//pcl::PointCloud<pcl::PointXYZRGB> cloud;//add yqy
 	//std::vector<Voxel> voxels; // for debugging
 
 	for (size_t i = 0; i < input_files.size(); ++i)
@@ -249,9 +254,53 @@ int main(int argc, char **argv)
 		*input >> value; // read the linefeed char
 
 		const int num_voxels = voxel_grid_width * voxel_grid_height * voxel_grid_depth;
-		while ((end_index < num_voxels) && input->good())
+
+
+		/*while ((end_index < num_voxels) && input->good())
+		{
+
+		}*/
+		//add yqy 
+		std::vector<char> value2;
+		//unsigned  char value2[4.0*num_voxels];
+		//while ((end_index < 4.0*num_voxels) && input->good())
+		////for (long int i= 0; i < 4.0*num_voxels;++i)	//一定要有input->good()的判断，因为4.0*num_voxels是可能的最大值（非常大的一个数），但实际数目远小于这个值，仅仅使用for速度非常慢出不了结果
+		//{
+		//	unsigned char value3;
+		//	*input >> value3;
+		//	value2.push_back(value3);
+		//	
+		//}
+		//不能来两次while ((end_index < 4.0*num_voxels) && input->good())，否则当第二个while开始时数据已经全部被读过一遍没数据可读了，应该放到一个while里进行操作
+		//add end
+
+
+		std::ifstream infile;
+		infile.open("texture.txt");
+		float str;
+		std::vector<float> str2;
+		/*std::string str;
+		std::vector<std::string> str2;*/
+		while (infile >> str)
+		{
+			str2.push_back(str);
+			//std::cout << str << std::endl;
+		}
+		infile.close();
+
+		unsigned int countallpoint = 0;
+		unsigned int real_num_voxels = 0;//add yqy  从pcd2voxel中的countallpoint而来
+		//while ((end_index < 4.0*num_voxels) && input->good())//add yqy
+		while ((end_index < num_voxels) && input->good())//comement yqy//good()函数用来判断当前流状态是否健康，当遇到EOF、输入类型不匹配的时候放回false
+		//while ((end_index < real_num_voxels) && input->good())//add yqy
 		{
 			*input >> value >> count;
+			/*countallpoint += 1;*/
+
+
+			//unsigned char value3;
+			//*input >> value3;
+			//value2.push_back(value3);
 
 			if (input->good())
 			{
@@ -262,19 +311,41 @@ int main(int argc, char **argv)
 					return 0;
 				}
 
-				for (int i = index; i < end_index; ++i)
+				for (int i = index; i < end_index; ++i)//comment yqy
+				//for (int i = index; (i < num_voxels)&&(i < end_index); ++i)//add yqy
 				{
-					// Output progress dots
+					// Output progress dots  代表进程状态的点
 					if (i % (num_voxels / 20) == 0)
 					{
 						std::cout << ".";
 						std::cout.flush();
 					}
 
-					// Get the voxel indices
+					////add yqy
+					//float iy = 0;
+					//float iz = 0;
+					//float ix = 0;
+					//if (end_index < num_voxels)//add yqy
+					//{
+					//	// Get the voxel indices
+					//	iy = static_cast<float>(i % voxel_grid_width);
+					//	iz = static_cast<float>((i / voxel_grid_width) % voxel_grid_height);
+					//	ix = static_cast<float>(i / (voxel_grid_width * voxel_grid_height));
+					//}
+					////yqy end
+
+					//comment yqy
+					// get the voxel indices
 					const float iy = static_cast<float>(i % voxel_grid_width);
 					const float iz = static_cast<float>((i / voxel_grid_width) % voxel_grid_height);
 					const float ix = static_cast<float>(i / (voxel_grid_width * voxel_grid_height));
+					//yqy end
+
+					////add yqy  不对，使用了游程编码，以下这种表示只有在一个一个存的时候才对
+					//const float ir = value2[index+ num_voxels];
+					//const float ig = value2[index + 2*num_voxels];
+					//const float ib = value2[index +3* num_voxels];
+					////add end
 
 					// Convert voxel indices from integer to values between 0.0 to 1.0
 					// The 0.5 aligns the point with the center of the voxel.
@@ -286,18 +357,62 @@ int main(int argc, char **argv)
 					const double py = scale * static_cast<double>(y) + ty;
 					const double pz = scale * static_cast<double>(z) + tz;
 
+					//comment yqy
 					pcl::PointXYZ point(static_cast<float>(px),
 						static_cast<float>(py),
 						static_cast<float>(pz));
+					//comment end
+
+					////add yqy
+					//pcl::PointXYZRGB point();//这样会报错表达式必须包含类类型
+					//pcl::PointXYZRGB point(static_cast<float>(px),
+					//	static_cast<float>(py),
+					//	static_cast<float>(pz));//其实并没有准确赋值，因为PointXYZRGB初始化是给rgb初始化
+				/*	point.r = ir;
+					point.g = ig;
+					point.b = ib;*/
+					////add end
+
+					//add yqy
+					if (value == 1)
+					{
+						const float ir = str2[countallpoint + 0];
+						const float ig = str2[countallpoint + 1];
+						const float ib = str2[countallpoint + 2];
+						countallpoint += 1;
+						point.x = px;
+						point.y = py;
+						point.z = pz;
+						/*point.r = ir;
+						point.g = ig;
+						point.b = ib;*/
+					}
+					
+					//add end
 
 					if (!apply_bounding_box
 						|| (px <= bbox_max_x && px >= bbox_min_x
 							&& py <= bbox_max_y && py >= bbox_min_y
 							&& pz <= bbox_max_z && pz >= bbox_min_z))
 					{
-						if (value == 1)
+						if (value == 1)//1是真正的点云，0代表没有物体所在的位置
 						{
+
+							//const float ir = str2[countallpoint + 0];
+							//const float ig = str2[countallpoint + 1];
+							//const float ib = str2[countallpoint + 2];
+							//countallpoint += 1;
+							//point.x = px;
+							//point.y = py;
+							//point.z = pz;
+							//point.r = ir;
+							//point.g = ig;
+							//point.b = ib;
+
 							cloud.points.push_back(point);
+
+							
+
 
 							// For debugging: Save the voxel indices
 							//voxels.push_back(Voxel(static_cast<unsigned int>(ix),
@@ -319,6 +434,8 @@ int main(int argc, char **argv)
 				index = end_index;
 			}
 		}
+		/*std::cout << "countallpoint " << countallpoint << std::endl;
+		std::cout << "num_voxels " << num_voxels << std::endl;*/
 
 		std::cout << std::endl << std::endl;
 
@@ -336,8 +453,14 @@ int main(int argc, char **argv)
 	  //writeVoxelsToFile(voxels, "voxels_from_binvox.txt");
 
 	std::cout << "PointCloud has " << cloud.points.size() << " points";
+	//comment yqy
 	pcl::PointXYZ min_point;
 	pcl::PointXYZ max_point;
+	//comment end
+	//add yqy
+	/*pcl::PointXYZRGB min_point;
+	pcl::PointXYZRGB max_point;*/
+	//add end
 	pcl::getMinMax3D(cloud, min_point, max_point);
 	std::cout << ", with extents: "
 		<< "(" << min_point.x << ", " << min_point.y << ", " << min_point.z << ") to "
