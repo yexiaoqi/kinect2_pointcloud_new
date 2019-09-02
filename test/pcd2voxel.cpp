@@ -13,7 +13,7 @@
 
 
 //将pcd转为binvox体素文件
-//在项目-属性-配置属性-命令参数中输入test  -d 1024  ./xiaowenstatisticalOutlierRemoval_inlier190820.pcd ./xiaowenstatisticalOutlierRemoval_inlier190820.binvox
+//在项目-属性-配置属性-命令参数中输入test  -d 1024  ./xiaowenstatisticalOutlierRemoval_inlier190820.pcd ./xiaowenstatisticalOutlierRemoval_inlier190901_texture.binvox
 
 #include "stdafx.h"
 #include <string>
@@ -33,7 +33,7 @@
 #include <pcl/console/parse.h>
 
 #include <vector>
-
+#if 0
 using namespace std;
 
 //struct Voxel
@@ -144,7 +144,7 @@ const std::string formatFloat(const float value)
 }
 
 
-#if 0
+
 //在项目-属性-配置属性-命令参数中输入test  -d 1024  ./xiaowenstatisticalOutlierRemoval_inlier190820.pcd ./xiaowenstatisticalOutlierRemoval_inlier190820.binvox
 int main(int argc, char **argv)
 {
@@ -315,8 +315,8 @@ int main(int argc, char **argv)
 	*/
 
 	const std::string output_file(argv[binvox_file_indices[0]]);
-	//std::ofstream* output = new std::ofstream(output_file, std::ios::out | std::ios::binary);
-	std::ofstream* output = new std::ofstream(output_file);
+	std::ofstream* output = new std::ofstream(output_file, std::ios::out | std::ios::binary);
+	//std::ofstream* output = new std::ofstream(output_file);//改成这样会出错滴
 	if (!output->good())
 	{
 		std::cerr << "Error: Could not open output file " << output << "!" << std::endl;
@@ -328,6 +328,8 @@ int main(int argc, char **argv)
 
 	std::ofstream outtxt;
 	outtxt.open("texture.txt");
+	//std::ofstream outtxt("texture.txt", std::ios::binary);//使用二进制方法存，因为pcl点云rgb值赋值是二进制的
+	//std::ofstream* outtxt = new std::ofstream("texture.txt", std::ios::out | std::ios::binary);
 
 	// Write the binvox file using run-length encoding
 	// where each pair of bytes is of the format (run value, run length)
@@ -414,6 +416,18 @@ int main(int argc, char **argv)
 				//std::cout<< voxels_bitset[1][i];
 				outtxt << voxels_bitset[1][i] << " ";
 				outtxt << voxels_bitset[2][i] << " ";
+
+
+
+				//*outtxt << voxels_bitset[0][i] << " ";
+				////std::cout<< voxels_bitset[1][i];
+				//*outtxt << voxels_bitset[1][i] << " ";
+				//*outtxt << voxels_bitset[2][i] << " ";
+
+				////二进制方式
+				//outtxt->write(reinterpret_cast<char*>(&voxels_bitset[0][i]), sizeof(voxels_bitset[0][i]));
+				//outtxt->write(reinterpret_cast<char*>(&voxels_bitset[1][i]), sizeof(voxels_bitset[1][i]));
+				//outtxt->write(reinterpret_cast<char*>(&voxels_bitset[2][i]), sizeof(voxels_bitset[2][i]));
 			}
 		}
 		std::cout << "countallpoint " << countallpoint << std::endl;//统计有多少个点，方便后面voxel2pcd读取
@@ -434,6 +448,7 @@ int main(int argc, char **argv)
 	//comment end
 	
 	output->close();
+	//outtxt->close();//add yqy
 	outtxt.close();//add yqy
 
 
@@ -445,3 +460,8 @@ int main(int argc, char **argv)
 	return 0;
 }
 #endif
+
+
+
+
+

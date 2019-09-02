@@ -2,7 +2,7 @@
 
 
 //将binvox体素文件转为pcd
-//在项目-属性-配置属性-命令参数中输入 -o  ./xiaowenstatisticalOutlierRemoval_inlier190821.pcd ./xiaowenstatisticalOutlierRemoval_inlier190820.binvox
+//在项目-属性-配置属性-命令参数中输入 -o  ./xiaowenstatisticalOutlierRemoval_inlier190901_texture.pcd ./xiaowenstatisticalOutlierRemoval_inlier190901_texture.binvox
 
 
 //
@@ -67,7 +67,7 @@ output->close();
 }
 */
 #if 0
-//在项目-属性-配置属性-命令参数中输入 -o  ./xiaowenstatisticalOutlierRemoval_inlier190821.pcd ./xiaowenstatisticalOutlierRemoval_inlier190820.binvox
+//在项目-属性-配置属性-命令参数中输入 -o  ./xiaowenstatisticalOutlierRemoval_inlier190901_texture.pcd ./xiaowenstatisticalOutlierRemoval_inlier190901_texture.binvox
 
 int main(int argc, char **argv)
 {
@@ -136,8 +136,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	pcl::PointCloud<pcl::PointXYZ> cloud;//comment yqy
-	//pcl::PointCloud<pcl::PointXYZRGB> cloud;//add yqy
+	//pcl::PointCloud<pcl::PointXYZ> cloud;//comment yqy
+	pcl::PointCloud<pcl::PointXYZRGB> cloud;//add yqy
 	//std::vector<Voxel> voxels; // for debugging
 
 	for (size_t i = 0; i < input_files.size(); ++i)
@@ -275,15 +275,45 @@ int main(int argc, char **argv)
 		//add end
 
 
-		std::ifstream infile;
-		infile.open("texture.txt");
+		/*std::ifstream infile;
+		infile.open("texture.txt");*/
+		//二进制
+		std::ifstream infile("texture.txt", std::ios::binary);
+		if (!infile)
+		{
+			std::cerr << "open error!" << std::endl;
+			abort();
+		}
+
+		
+		//std::vector<char> str2;
+		//char strchar;
+		//std::string str;
+		//while(infile.read((char*)&strchar, sizeof(strchar)))
+		//{
+		//	//infile.read((char*)&strchar, sizeof(strchar));
+		//	str2.push_back(strchar);
+		//}
+
+
+
+		//std::vector<int> str2;
+		//char strchar;
+		//std::string str;
+		//while (infile.read((char*)&strchar, sizeof(strchar)))
+		//{
+		//	//infile.read((char*)&strchar, sizeof(strchar));
+		//	str2.push_back(strchar);
+		//}
+
 		float str;
 		std::vector<float> str2;
-		/*std::string str;
-		std::vector<std::string> str2;*/
+		int testyq = 0;
 		while (infile >> str)
 		{
 			str2.push_back(str);
+			//str2.push_back(testyq);
+			//testyq += 1;
 			//std::cout << str << std::endl;
 		}
 		infile.close();
@@ -358,35 +388,45 @@ int main(int argc, char **argv)
 					const double pz = scale * static_cast<double>(z) + tz;
 
 					//comment yqy
-					pcl::PointXYZ point(static_cast<float>(px),
+				/*	pcl::PointXYZ point(static_cast<float>(px),
 						static_cast<float>(py),
-						static_cast<float>(pz));
+						static_cast<float>(pz));*/
 					//comment end
 
 					////add yqy
 					//pcl::PointXYZRGB point();//这样会报错表达式必须包含类类型
-					//pcl::PointXYZRGB point(static_cast<float>(px),
-					//	static_cast<float>(py),
-					//	static_cast<float>(pz));//其实并没有准确赋值，因为PointXYZRGB初始化是给rgb初始化
+					/*pcl::PointXYZRGB point(static_cast<float>(px),
+						static_cast<float>(py),
+						static_cast<float>(pz));*///其实并没有准确赋值，因为PointXYZRGB初始化是给rgb初始化
 				/*	point.r = ir;
 					point.g = ig;
 					point.b = ib;*/
 					////add end
 
 					//add yqy
-					if (value == 1)
-					{
-						const float ir = str2[countallpoint + 0];
-						const float ig = str2[countallpoint + 1];
-						const float ib = str2[countallpoint + 2];
-						countallpoint += 1;
-						point.x = px;
-						point.y = py;
-						point.z = pz;
-						/*point.r = ir;
-						point.g = ig;
-						point.b = ib;*/
-					}
+					//if (value == 1)
+					//{
+					//	/*const float ir = str2[countallpoint + 0];
+					//	const float ig = str2[countallpoint + 1];
+					//	const float ib = str2[countallpoint + 2];*/
+					//	int ir = str2[countallpoint + 0];
+					//	int ig = str2[countallpoint + 1];
+					//	int ib = str2[countallpoint + 2];
+
+
+					//	pcl::PointXYZRGB point(ir,
+					//		ig,
+					//		ib);
+
+
+					//	countallpoint += 1;
+					//	point.x = px;
+					//	point.y = py;
+					//	point.z = pz;
+					//	//point.r = ir;
+					//	//point.g = ig;
+					//	//point.b = ib;//赋值过来变成了ascii码对应的字母，而不是真正的rgb值  这说明rgb的赋值采用的是ascii码，要修改赋值方式
+					//}
 					
 					//add end
 
@@ -398,6 +438,36 @@ int main(int argc, char **argv)
 						if (value == 1)//1是真正的点云，0代表没有物体所在的位置
 						{
 
+
+						
+							int ir = str2[countallpoint + 0];
+							int ig = str2[countallpoint + 1];
+							int ib = str2[countallpoint + 2];
+
+							//int ir = str2[countallpoint + 0];
+							//int ig = 0;
+							//int ib = 0;
+
+
+
+							//const float ir = str2[countallpoint + 0];
+							////ir=百位上的数字*100
+							//const float ig = str2[countallpoint + 1];
+							//const float ib = str2[countallpoint + 2];
+							//pcl::PointXYZRGB point;
+							pcl::PointXYZRGB point = pcl::PointXYZRGB(static_cast<float>(ir),
+								static_cast<float>(ig),
+								static_cast<float>(ib));
+							//pcl::PointXYZRGB point(255,0,0);
+							//并没有当做ascii码赋值的问题，输入pcl::PointXYZRGB point(255,0,0);可以得到红色
+
+							countallpoint += 3;//加3啊不是加1！！！！！！！！！太坑啦
+							point.x = px;
+							point.y = py;
+							point.z = pz;
+
+
+
 							//const float ir = str2[countallpoint + 0];
 							//const float ig = str2[countallpoint + 1];
 							//const float ib = str2[countallpoint + 2];
@@ -405,9 +475,20 @@ int main(int argc, char **argv)
 							//point.x = px;
 							//point.y = py;
 							//point.z = pz;
-							//point.r = ir;
-							//point.g = ig;
-							//point.b = ib;
+							/*point.r = static_cast<float>(57);
+							point.g = 0;
+							point.b = 255;*/
+
+
+							/*uint32_t rgb = (static_cast<uint32_t>(ir) << 16 |
+								static_cast<uint32_t>(ig) << 8 | static_cast<uint32_t>(ib));
+							point.rgb = *reinterpret_cast<float*>(&rgb);*/
+
+							//经过验证，以下这种方式可以正常赋值，可以得到全红的
+							//uint8_t r = 255, g = 0, b = 0;
+							//uint8_t r = str2[countallpoint + 0], g = str2[countallpoint + 1], b = str2[countallpoint + 2];    // Example: Red color
+							//uint32_t rgb = ((uint32_t)r << 16 | (uint32_t)g << 8 | (uint32_t)b);
+							//point.rgb = *reinterpret_cast<float*>(&rgb);
 
 							cloud.points.push_back(point);
 
@@ -454,12 +535,12 @@ int main(int argc, char **argv)
 
 	std::cout << "PointCloud has " << cloud.points.size() << " points";
 	//comment yqy
-	pcl::PointXYZ min_point;
-	pcl::PointXYZ max_point;
+	/*pcl::PointXYZ min_point;
+	pcl::PointXYZ max_point;*/
 	//comment end
 	//add yqy
-	/*pcl::PointXYZRGB min_point;
-	pcl::PointXYZRGB max_point;*/
+	pcl::PointXYZRGB min_point;
+	pcl::PointXYZRGB max_point;
 	//add end
 	pcl::getMinMax3D(cloud, min_point, max_point);
 	std::cout << ", with extents: "
@@ -473,3 +554,15 @@ int main(int argc, char **argv)
 	return 0;
 }
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
