@@ -1,0 +1,8 @@
+C:\anzhuang\opencv\anzhuanghou\opencv\build\include
+C:\anzhuang\opencv\anzhuanghou\opencv\build\include\opencv
+C:\anzhuang\opencv\anzhuanghou\opencv\build\include\opencv2
+
+C:\anzhuang\opencv\anzhuanghou\opencv\build\x64\vc12\lib
+
+opencv_ts300.lib
+opencv_world300.lib

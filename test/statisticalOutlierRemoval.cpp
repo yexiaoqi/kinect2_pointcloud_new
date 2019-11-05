@@ -13,7 +13,9 @@ int main(int argc, char** argv)
 	// 定义读取对象
 	pcl::PCDReader reader;
 	// 读取点云文件
-	reader.read<pcl::PointXYZRGB>("xiaowenstatisticalOutlierRemoval_inlier190820.pcd", *cloud);
+	//reader.read<pcl::PointXYZRGB>("xiaowenstatisticalOutlierRemoval_inlier190820.pcd", *cloud);
+	reader.read<pcl::PointXYZRGB>("./level7/1234kinectcenter191017_225_2_ten_deletefloor8.pcd", *cloud);
+	
 
 	std::cerr << "Cloud before filtering: " << std::endl;
 	std::cerr << *cloud << std::endl;
@@ -22,15 +24,16 @@ int main(int argc, char** argv)
 	//个点的距离超出了平均距离一个标准差以上，则该点被标记为离群点，并将它移除，存储起来
 	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;   //创建滤波器对象
 	sor.setInputCloud(cloud);                           //设置待滤波的点云
-	sor.setMeanK(100);                               //设置在进行统计时考虑查询点临近点数
-	sor.setStddevMulThresh(0.01);                      //设置判断是否为离群点的阀值
+	sor.setMeanK(10);                               //设置在进行统计时考虑查询点临近点数
+	sor.setStddevMulThresh(2);                      //设置判断是否为离群点的阀值
 	sor.filter(*cloud_filtered);                    //存储
 
 	std::cerr << "Cloud after filtering: " << std::endl;
 	std::cerr << *cloud_filtered << std::endl;
 
 	pcl::PCDWriter writer;
-	writer.write<pcl::PointXYZRGB>("./xiaowenstatisticalOutlierRemoval_inlier190820again.pcd", *cloud_filtered, false);//去除离群点后的点
+	//writer.write<pcl::PointXYZRGB>("./xiaowenstatisticalOutlierRemoval_inlier190820again.pcd", *cloud_filtered, false);//去除离群点后的点
+	writer.write<pcl::PointXYZRGB>("./level7/1234kinectcenter191017_225_2_ten_deletefloor8_statisticalOutlierRemoval.pcd", *cloud_filtered, false);//去除离群点后的点
 
 
 	//sor.setNegative(true);

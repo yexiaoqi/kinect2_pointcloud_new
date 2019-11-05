@@ -1,4 +1,8 @@
+// compiletest.cpp : 定义控制台应用程序的入口点。
+//
+
 #include "stdafx.h"
+
 
 
 //pcd转ply文件成功
@@ -43,14 +47,17 @@ int main()
 }
 #endif
 
-#if 1
+#if 0
 //成功
 int main()
 {
 	//string input_filename = "C:/vsprojects/cvtest/cvtest/pointcloud.pcd";
 	//string output_filename = "C:/vsprojects/cvtest/cvtest/pointcloud.ply";
-	string input_filename = "./xiaowenstatisticalOutlierRemoval_inlier190901_texture.pcd";
-	string output_filename = "./xiaowenstatisticalOutlierRemoval_inlier190901_texture.ply";
+	//string input_filename = "./xiaowenstatisticalOutlierRemoval_inlier190901_texture.pcd";
+	//string output_filename = "./xiaowenstatisticalOutlierRemoval_inlier190901_texture.ply";
+	string input_filename = "./level7/1234kinectcenter191017_225_2_ten_deletefloor8_statisticalOutlierRemoval.pcd";
+	string output_filename = "./level7/1234kinectcenter191017_225_2_ten_deletefloor8_statisticalOutlierRemoval.ply";
+	
 	//pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 	if (loadPCDFile(input_filename,*cloud) < 0)

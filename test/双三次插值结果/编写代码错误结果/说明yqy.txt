@@ -1,0 +1,6 @@
+这是resize时采用了语句cv2.resize(pic, (960,540), interpolation=cv2.INTER_CUBIC)，因为interpolation=cv2.INTER_CUBIC导致的错误结果，删掉，interpolation=cv2.INTER_CUBIC即可
+
+2downsize是双三次插值的输入，它由深度图2.png长宽各resize到原来的1/2得到
+1906017downsizeoutput是2downsize转化为点云的效果,downsize转化点云.png为其在meshlab中打开的效果(说明输入就不对！！！！！！)
+2bicubicoutput是编写代码的双三次插值的输出，变成1920*1080
+19060617bicubicoutput是2bicubicoutput转化为点云的效果，捕获.png为其在meshlab中打开的效果

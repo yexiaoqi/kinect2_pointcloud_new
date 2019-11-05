@@ -1,0 +1,4 @@
+FocalLengthX : 364.547                                                                                                  
+FocalLengthY : 364.547                                                                                                  
+PrincipalPointX : 254.616                                                                                               
+PrincipalPointY : 207.801 

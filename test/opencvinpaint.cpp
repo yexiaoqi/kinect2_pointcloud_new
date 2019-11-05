@@ -1,4 +1,8 @@
+// compiletest.cpp : 定义控制台应用程序的入口点。
+//
+
 #include "stdafx.h"
+
 #include <windows.h> 
 #if 0
 //计算处理时间
@@ -17,7 +21,7 @@ int main(int argc, char **argv) {
 
 	int height = 1080;
 	int width = 1920;
-	Mat depthMat = cv::imread("C:/vsprojects/LiveScan3D-master/LiveScan3D-master/result/inpaintorigin.png", -1);
+	Mat depthMat = cv::imread("C:/vsprojects/marchingcubes/open3d3/Open3D/examples/Python/Advanced/realdata/four/depth/1.png", -1);
 	//Mat depthMat(height, width, CV_16UC1, depth); // from kinect
 	Mat depthf(height, width, CV_8UC1);
 	GetLocalTime(&sTime1);
@@ -52,7 +56,7 @@ int main(int argc, char **argv) {
 	dft = (fTime2.QuadPart - fTime1.QuadPart) / 10000;
 	cout << dft;
 	imshow("depth-inpaint", depthMat); // show results
-	imwrite("C:/vsprojects/LiveScan3D-master/LiveScan3D-master/result/inpaint2.png", depthMat);
+	imwrite("C:/pycharmprojects/four/depth/inpaint1.png", depthMat);
 	waitKey();
 	return 0;
 }

@@ -55,14 +55,18 @@ int main()
 
 	pcl::PCLPointCloud2 clod;
 	pcl::PLYReader reader;
-	reader.read("./xiaowen.ply", clod);
+	//reader.read("./xiaowen.ply", clod);
+	reader.read("./level7/1234kinectcenter191017_225_2_ten_deletefloor8.ply", clod);
+
 	pcl::PCDWriter writer;
-	writer.writeASCII("./xiaowen.pcd", clod);
+	//writer.writeASCII("./xiaowen.pcd", clod);
+	writer.writeASCII("./level7/1234kinectcenter191017_225_2_ten_deletefloor8.pcd", clod);
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 	//对于ply文件中格式为RGBA格式，则上句改写为
 	//pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
-	pcl::io::loadPCDFile("./xiaowen.pcd", *cloud);
+	//pcl::io::loadPCDFile("./xiaowen.pcd", *cloud);
+	pcl::io::loadPCDFile("./level7/1234kinectcenter191017_225_2_ten_deletefloor8.pcd", *cloud);
 
 
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewe(new pcl::visualization::PCLVisualizer("ss"));

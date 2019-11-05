@@ -12,7 +12,7 @@
 
 
 
-//将pcd转为binvox体素文件
+//将pcd转为binvox体素文件（带纹理，纹理存文texture.txt文件）
 //在项目-属性-配置属性-命令参数中输入test  -d 1024  ./xiaowenstatisticalOutlierRemoval_inlier190820.pcd ./xiaowenstatisticalOutlierRemoval_inlier190901_texture.binvox
 
 #include "stdafx.h"

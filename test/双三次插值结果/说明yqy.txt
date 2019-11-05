@@ -1,0 +1,6 @@
+2.png是对齐到彩色相机坐标系下的深度图，2转化为点云.png为其在meshlab中打开的效果
+2downsize是双三次插值的输入，它由深度图2.png长宽各resize到原来的1/2得到
+1906017downsizeoutput是2downsize转化为点云的效果,downsize转化点云.png为其在meshlab中打开的效果
+2bicubicoutput是编写代码的双三次插值的输出，变成1920*1080
+19060617bicubicoutput是2bicubicoutput转化为点云的效果，捕获.png为其在meshlab中打开的效果
+

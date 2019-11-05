@@ -1,0 +1,13 @@
+evaluating csv file: ../dataset/test.csv
+Load checkpoint: ../log/cscd/noBN_L1_sd100_B16/./noBN_L1_sd100_B16-6000
+2019-05-19 10:39:06.933221: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+2019-05-19 10:39:07.085240: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:895] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2019-05-19 10:39:07.086415: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1105] Found device 0 with properties: 
+name: GeForce GTX 1070 major: 6 minor: 1 memoryClockRate(GHz): 1.7845
+pciBusID: 0000:01:00.0
+totalMemory: 7.92GiB freeMemory: 7.16GiB
+2019-05-19 10:39:07.086435: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1195] Creating TensorFlow device (/device:GPU:0) -> (device: 0, name: GeForce GTX 1070, pci bus id: 0000:01:00.0, compute capability: 6.1)
+saving img frame_000001.png.
+(2724, 500)
+(2725, 561)
+iter 1 | tt_time: 0.9419s; avg_time: 941.90; mv_avg_time: 313.97

@@ -156,6 +156,7 @@
     <ClCompile Include="inputimg_2_cloud.cpp" />
     <ClCompile Include="kinect_get_cloud_directly.cpp" />
     <ClCompile Include="kinect_get_coloranddepth_2_cloud.cpp" />
+    <ClCompile Include="multiimg2cloud.cpp" />
     <ClCompile Include="opencvinpaint.cpp" />
     <ClCompile Include="opengltest.cpp" />
     <ClCompile Include="pcd2ply.cpp" />

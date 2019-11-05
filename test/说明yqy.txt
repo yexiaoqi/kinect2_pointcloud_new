@@ -1,0 +1,2 @@
+inputimg190519是采集的512*424的深度图和rgb图像
+xiugairesult2中的depth是inputimg190519里面的深度图去掉背景图像，depthresize是将去掉背景图像后的depth变成640*480大小，rgbresize是将采集到的rgb图像变成640*480大小，withbackgraounddepthresize是没有去掉背景的depth变成640*480大小

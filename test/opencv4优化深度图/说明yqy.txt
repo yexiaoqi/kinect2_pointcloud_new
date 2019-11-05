@@ -1,0 +1,2 @@
+190606172inpaintopencv现将图像缩小至原来的1/5，然后进行inpaint操作，然后再将图像放大至原来大小的结果
+19060618inpaintopencv是直接对原始大小的图像inpaint的结果，2inpaintopencv是其输入深度图

@@ -292,10 +292,13 @@ int GetPicture()
 		std::stringstream str1;
 		if (countrgb < 2)
 		{
-			str1 << "C:/vsprojects/test/test/result3/rgb/" << countrgb << ".png";
+			str1 << "C:/vsprojects/test/res/rgb/" << countrgb << ".png";
 			countrgb++;
+			imwrite(str1.str(), i_depthToRgb);
 		}
-		imwrite(str1.str(), i_depthToRgb);
+		//std::cout << str1.str();
+		
+		//imwrite("C:/vsprojects/test/res/rgb/2.png", i_depthToRgb);
 
 
 		if (waitKey(1) == VK_ESCAPE)
@@ -309,10 +312,11 @@ int GetPicture()
 		std::stringstream str2;
 		if (countdepth <2)
 		{
-			str2 << "C:/vsprojects/test/test/result3/depth/" << countdepth << ".png";
+			str2 << "C:/vsprojects/test/res/depth/" << countdepth << ".png";
 			countdepth++;
+			imwrite(str2.str(), i_depth);
 		}
-		imwrite(str2.str(), i_depth);
+		
 		//imwrite("C:/vsprojects/cvtest/cvtest/result/depth/yqydepth.png", i_depth);
 
 
@@ -382,7 +386,7 @@ int GetPicture()
 
 		//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 		pcl::PLYWriter writer;
-		writer.write("C:/vsprojects/test/test/kinectcloud190519.ply", *cloud);
+		writer.write("C:/vsprojects/test/res/res.ply", *cloud);
 
 		//清楚数据并保存
 
@@ -401,9 +405,9 @@ int GetPicture()
 		imshow("ir", i_ir);
 		if (waitKey(1) == VK_ESCAPE)
 			break;
-		/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZRGB>);
-		getPointCloudFromImage(i_depth, i_rgb, *cloud_out);
-		pcl::visualization::CloudViewer viewerG("Cloud Viewe");
+	/*	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZRGB>);
+		getPointCloudFromImage(i_depth, i_rgb, *cloud_out);*/
+		/*pcl::visualization::CloudViewer viewerG("Cloud Viewe");
 		viewerG.runOnVisualizationThreadOnce(viewerOneOff);
 		viewerG.showCloud(cloud_out);*/
 		if (cv::waitKey(30) == VK_ESCAPE) break;
@@ -1134,7 +1138,7 @@ int main()
 
 		//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
 		pcl::PLYWriter writer;
-		writer.write("C:/vsprojects/cvtest/cvtest/pointcloudyqy190511.ply", *cloud);
+		writer.write("C:/vsprojects/test/res/res2.ply", *cloud);
 
 		//清楚数据并保存
 
@@ -1937,6 +1941,519 @@ int main()
 			/*pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZRGB>);
 			getPointCloudFromImage(i_depth, i_rgb, *cloud_out);
 			pcl::visualization::CloudViewer viewerG("Cloud Viewe");
+			viewerG.runOnVisualizationThreadOnce(viewerOneOff);
+			viewerG.showCloud(cloud_out);*/
+			if (cv::waitKey(30) == VK_ESCAPE) break;
+			//waitKey(0);
+			/*string s1 = "C:\\Users\\mataiyuan\\Desktop\\yooongchun\\dataset\\sample-";
+			string s2 = "-rgb.png";
+			string s3 = "-depth.png";
+			string s4 = "-infrared.png";
+			cvSaveImage((s1 + to_string(sample_id) + s2).c_str(), &IplImage(i_rgb));
+			cvSaveImage((s1 + to_string(sample_id) + s3).c_str(), &IplImage(i_depth));
+			cvSaveImage((s1 + to_string(sample_id) + s4).c_str(), &IplImage(i_ir));
+			sample_id += 1;*/
+
+			// 释放资源
+			SafeRelease(m_pColorFrame);
+			SafeRelease(m_pDepthFrame);
+			SafeRelease(m_pInfraredFrame);
+			SafeRelease(m_pColorFrameReference);
+			SafeRelease(m_pDepthFrameReference);
+			SafeRelease(m_pInfraredFrameReference);
+			SafeRelease(m_pMultiFrame);
+		}
+		// 关闭窗口，设备
+		cv::destroyAllWindows();
+		m_pKinectSensor->Close();
+	}
+	int main()
+	{
+		GetPicture();
+		std::system("pause");
+		return 0;
+	}
+#endif
+
+
+
+
+
+
+
+#if 0
+	//获取rgb图和深度图成功，尝试解决深度图中墙面截断问题，存为16位图像成功，增加内参后点云也对了，现在存储的rgb图是已经和深度图对齐的rgb图
+	//点云的颜色不对，修改成功，并且以kinect自带函数MapDepthFrameToCameraSpace转换的点云和自己用内参转换点云两种方式得到点云并存储
+#include <kinect.h>
+#include <iostream>
+#include <opencv2\opencv.hpp>
+#include <opencv2/core/core.hpp>  
+#include <opencv2/highgui/highgui.hpp>  
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
+#include <kinect.h>
+#include <pcl/visualization/cloud_viewer.h> 
+#include <pcl/visualization/pcl_visualizer.h>
+#include <opencv2/opencv.hpp>
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include<string>
+
+
+	//定义点云类型
+
+	typedef pcl::PointXYZRGBA PointT;
+
+	typedef pcl::PointCloud<PointT> PointCloud;
+
+	////相机内参
+	//const double camera_factor = 1000;
+
+	//const double camera_cx = 254.616;
+
+	//const double camera_cy = 207.801;
+
+	//const double camera_fx = 364.547;
+
+	//const double camera_fy = 364.547;
+
+	//const double camera_cx = 259.896;
+
+	//const double camera_cy = 206.745;
+
+	//const double camera_fx = 367.749;
+
+	//const double camera_fy = 367.749;
+
+
+	using namespace cv;
+	using namespace std;
+
+	ICoordinateMapper* pMapper = nullptr;
+	const int iWidth = 512, iHeight = 424;
+	CameraSpacePoint depth2xyz[iWidth*iHeight];
+	ColorSpacePoint depth2rgb[iWidth*iHeight];
+	// 安全释放指针
+	template<class Interface>
+	inline void SafeRelease(Interface *& pInterfaceToRelease)
+	{
+		if (pInterfaceToRelease != NULL)
+		{
+			pInterfaceToRelease->Release();
+			pInterfaceToRelease = NULL;
+		}
+	}
+
+
+
+	/*void getPointCloudFromImage(Mat depthImage, Mat rgbImage, pcl::PointCloud<pcl::PointXYZRGB> &cloud_out)
+	{
+		pMapper->MapDepthFrameToCameraSpace(iWidth*iHeight, reinterpret_cast<UINT16*>(depthImage.data), iWidth*iHeight, depth2xyz);
+	}*/
+
+	void getPointCloudFromImage(Mat depthImage, Mat rgbImage, pcl::PointCloud<pcl::PointXYZRGB> &cloud_out)
+	{
+
+		pMapper->MapDepthFrameToCameraSpace(iWidth*iHeight, reinterpret_cast<UINT16*>(depthImage.data), iWidth*iHeight, depth2xyz);
+		pMapper->MapDepthFrameToColorSpace(512 * 424, reinterpret_cast<UINT16*>(depthImage.data), 512 * 424, depth2rgb);
+		/*通过查找ColorSpacePoint(这里是depth2rgb)定义，可以知道它储存的是深度图像的每个点对应到1920 * 1080彩图上的横纵坐标。
+			但需要注意的是，这种对应关系是通过Kinect相机的内参矩阵直接计算的，所以计算结果保存为浮点数，而且会有很多点超过1920 * 1080的范围甚至是负无穷大。*/
+		cloud_out.height = 1;
+		//cloud_out.is_dense = 1;
+		cloud_out.is_dense = 0;
+
+		for (size_t i = 0; i < iWidth; i++)
+		{
+			for (size_t j = 0; j < iHeight; j++)
+			{
+				pcl::PointXYZRGB pointTemp;
+				if (depth2xyz[i + j*iWidth].Z > 0.5)
+				{
+
+					pointTemp.x = depth2xyz[i + j*iWidth].X;
+					pointTemp.y = depth2xyz[i + j*iWidth].Y;
+					pointTemp.z = depth2xyz[i + j*iWidth].Z;
+					int X = static_cast<int>(depth2rgb[j * 512 + i].X);
+					int Y = static_cast<int>(depth2rgb[j * 512 + i].Y);
+					if (X > 0 && Y > 0 && X < 1920 && Y < 1080)
+					{
+						Vec3b* pixelsRGBImage = rgbImage.ptr<Vec3b>(Y);
+						/*pointTemp.g = pixelsRGBImage[X][0];
+						pointTemp.b = pixelsRGBImage[X][1];
+						pointTemp.r = pixelsRGBImage[X][2];*/
+						/*pointTemp.b = pixelsRGBImage[X][0];
+						pointTemp.g = pixelsRGBImage[X][1];
+						pointTemp.r = pixelsRGBImage[X][2];*/
+
+						pointTemp.b = rgbImage.ptr<uchar>(Y)[X * 4];
+						pointTemp.g = rgbImage.ptr<uchar>(Y)[X * 4+1];
+						pointTemp.r = rgbImage.ptr<uchar>(Y)[X * 4+2];
+						cloud_out.push_back(pointTemp);
+					}
+					else continue;
+
+				}
+			}
+		}
+	}
+	void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
+	{
+
+		viewer.setBackgroundColor(1, 1, 1);//设置背景颜色 
+
+
+	}
+
+	int countrgb = 1;
+	int countdepth = 1;
+
+	Mat ConvertMat_1(const UINT16* pBuffer, int nWidth, int nHeight, USHORT nMinDepth, USHORT nMaxDepth)
+	{
+		Mat img(nHeight, nWidth, CV_16UC1);
+		UINT16* p_mat = (UINT16*)img.data;
+
+		const UINT16* pBufferEnd = pBuffer + (nWidth * nHeight);
+
+		while (pBuffer < pBufferEnd)
+		{
+			//USHORT depth = *pBuffer;
+			*p_mat = *pBuffer;
+			//*p_mat = (depth >= nMinDepth) && (depth <= nMaxDepth) ? depth  : 0;
+			//*p_mat = (depth >= nMinDepth) && (depth <= nMaxDepth) ? depth >> 0 : 0;
+			p_mat++;
+			++pBuffer;
+		}
+		return img;
+	}
+
+
+	int GetPicture()
+	{
+
+
+		// 获取Kinect设备
+		IKinectSensor* m_pKinectSensor;
+		HRESULT hr;
+		hr = GetDefaultKinectSensor(&m_pKinectSensor);
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+
+		IMultiSourceFrameReader* m_pMultiFrameReader;
+		if (m_pKinectSensor)
+		{
+			m_pKinectSensor->get_CoordinateMapper(&pMapper);
+			hr = m_pKinectSensor->Open();
+			if (SUCCEEDED(hr))
+			{
+				// 获取多数据源到读取器  
+				hr = m_pKinectSensor->OpenMultiSourceFrameReader(
+					FrameSourceTypes::FrameSourceTypes_Color |
+					FrameSourceTypes::FrameSourceTypes_Infrared |
+					FrameSourceTypes::FrameSourceTypes_Depth,
+					&m_pMultiFrameReader);
+			}
+
+
+		}
+
+		if (!m_pKinectSensor || FAILED(hr))
+		{
+			return E_FAIL;
+		}
+		// 三个数据帧及引用
+		IDepthFrameReference* m_pDepthFrameReference;
+		IColorFrameReference* m_pColorFrameReference;
+		IInfraredFrameReference* m_pInfraredFrameReference;
+		IInfraredFrame* m_pInfraredFrame;
+		IDepthFrame* m_pDepthFrame;
+		IColorFrame* m_pColorFrame;
+		// 三个图片格式
+		Mat i_rgb(1080, 1920, CV_8UC4);      //注意：这里必须为4通道的图，Kinect的数据只能以Bgra格式传出
+		Mat i_rgb_3channel;
+		Mat i_depth(424, 512, CV_16UC1);
+		//Mat i_depth_32bir(424, 512, CV_32S);
+		//Mat i_depth(424, 512, CV_16UC1);
+		//Mat i_rgb(480,640, CV_8UC4);      //注意：这里必须为4通道的图，Kinect的数据只能以Bgra格式传出
+		//Mat i_depth(480, 640, CV_8UC1);
+		Mat i_ir(424, 512, CV_16UC1);
+
+		UINT16 *depthData = new UINT16[424 * 512];
+		//INT32 *depthData_32bit = new INT32[424 * 512];
+		IMultiSourceFrame* m_pMultiFrame = nullptr;
+		int sample_id = 1;
+
+
+
+
+
+
+		while (true)
+		{
+			// 获取新的一个多源数据帧
+
+			hr = m_pMultiFrameReader->AcquireLatestFrame(&m_pMultiFrame);
+			if (FAILED(hr) || !m_pMultiFrame)
+			{
+				cout << "!!!" << endl;
+				continue;
+			}
+
+
+			// 从多源数据帧中分离出彩色数据，深度数据和红外数据
+			if (SUCCEEDED(hr))
+				hr = m_pMultiFrame->get_ColorFrameReference(&m_pColorFrameReference);
+			if (SUCCEEDED(hr))
+				hr = m_pColorFrameReference->AcquireFrame(&m_pColorFrame);
+			if (SUCCEEDED(hr))
+				hr = m_pMultiFrame->get_DepthFrameReference(&m_pDepthFrameReference);
+			if (SUCCEEDED(hr))
+				hr = m_pDepthFrameReference->AcquireFrame(&m_pDepthFrame);
+			if (SUCCEEDED(hr))
+				hr = m_pMultiFrame->get_InfraredFrameReference(&m_pInfraredFrameReference);
+			if (SUCCEEDED(hr))
+				hr = m_pInfraredFrameReference->AcquireFrame(&m_pInfraredFrame);
+
+			// color拷贝到图片中
+			UINT nColorBufferSize = 1920 * 1080 * 4;
+			//UINT nColorBufferSize = 640 * 480 * 4;
+			if (SUCCEEDED(hr))
+				hr = m_pColorFrame->CopyConvertedFrameDataToArray(nColorBufferSize, reinterpret_cast<BYTE*>(i_rgb.data), ColorImageFormat::ColorImageFormat_Bgra);
+			Mat i_depthToRgb(424, 512, CV_8UC4);
+
+
+			i_rgb_3channel = i_rgb;
+			//cv::imwrite("C:/vsprojects/test/rgb.png", i_rgb_3channel);
+
+
+			// depth拷贝到图片中
+			//i_depthToRgb是和深度图对齐的512*424 RGB图像
+			if (SUCCEEDED(hr))
+			{
+				//新增yqy
+				hr = pMapper->MapDepthFrameToColorSpace(512 * 424, depthData, 512 * 424, depth2rgb);
+				for (int i = 0; i < 424 * 512; i++)
+				{
+					ColorSpacePoint p = depth2rgb[i];
+					if (p.X != -std::numeric_limits<float>::infinity() && p.Y != -std::numeric_limits<float>::infinity())
+					{
+						int colorX = static_cast<int>(p.X + 0.5f);
+						int colorY = static_cast<int>(p.Y + 0.5f);
+
+						if ((colorX >= 0 && colorX < 1920) && (colorY >= 0 && colorY < 1080))
+						{
+							i_depthToRgb.data[i * 4] = i_rgb.data[(colorY * 1920 + colorX) * 4];
+							i_depthToRgb.data[i * 4 + 1] = i_rgb.data[(colorY * 1920 + colorX) * 4 + 1];
+							i_depthToRgb.data[i * 4 + 2] = i_rgb.data[(colorY * 1920 + colorX) * 4 + 2];
+							i_depthToRgb.data[i * 4 + 3] = i_rgb.data[(colorY * 1920 + colorX) * 4 + 3];
+						}
+					}
+				}
+				//yqyend
+				USHORT nDepthMinReliableDistance = 0;//获取最大、最小深度距离信息
+				USHORT nDepthMaxReliableDistance = 0;
+				assert(hr >= 0);
+				hr = m_pDepthFrame->get_DepthMinReliableDistance(&nDepthMinReliableDistance);
+				assert(hr >= 0);
+				hr = m_pDepthFrame->get_DepthMaxReliableDistance(&nDepthMaxReliableDistance);
+
+				hr = m_pDepthFrame->CopyFrameDataToArray(424 * 512, depthData);
+
+				i_depth = ConvertMat_1(depthData, 512, 424, nDepthMinReliableDistance, nDepthMaxReliableDistance);
+				//hr = m_pDepthFrame->CopyFrameDataToArray(480 * 640, depthData);
+				//for (int i = 0; i < 512 * 424; i++)
+				//	//for (int i = 0; i < 640 * 480; i++)
+				//{
+				//	// 0-255深度图，为了显示明显，只取深度数据的低8位
+				//	BYTE intensity = static_cast<BYTE>(depthData[i] % 65536);
+				//	//BYTE intensity = static_cast<BYTE>(depthData[i] % 256);
+				//	reinterpret_cast<BYTE*>(i_depth.data)[i] = intensity;
+				//}
+
+				// 实际是16位unsigned int数据
+				//hr = m_pDepthFrame->CopyFrameDataToArray(424 * 512, reinterpret_cast<UINT16*>(i_depth.data));
+			}
+
+			// infrared拷贝到图片中
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pInfraredFrame->CopyFrameDataToArray(424 * 512, reinterpret_cast<UINT16*>(i_ir.data));
+				//hr = m_pInfraredFrame->CopyFrameDataToArray(480 * 640, reinterpret_cast<UINT16*>(i_ir.data));
+			}
+
+
+			//获取相机内参
+			/*CameraIntrinsics* m_pCameraIntrinsics = new CameraIntrinsics();
+			pMapper->GetDepthCameraIntrinsics(m_pCameraIntrinsics);
+			cout << "FocalLengthX : " << m_pCameraIntrinsics->FocalLengthX << endl;
+			cout << "FocalLengthY : " << m_pCameraIntrinsics->FocalLengthY << endl;
+			cout << "PrincipalPointX : " << m_pCameraIntrinsics->PrincipalPointX << endl;
+			cout << "PrincipalPointY : " << m_pCameraIntrinsics->PrincipalPointY << endl;*/
+
+			CameraIntrinsics* m_pCameraIntrinsics = new CameraIntrinsics();
+			pMapper->GetDepthCameraIntrinsics(m_pCameraIntrinsics);
+			const double camera_factor = 1000;
+			/*const double camera_cx = m_pCameraIntrinsics->FocalLengthX;
+			const double camera_cy = m_pCameraIntrinsics->FocalLengthY;
+			const double camera_fx = m_pCameraIntrinsics->PrincipalPointX;
+			const double camera_fy = m_pCameraIntrinsics->PrincipalPointY;*/
+
+			//使用以下内参反而比使用上面实时得到的内参效果好
+			const double camera_cx = 253.0139;
+
+			const double camera_cy = 209.5703;
+
+			const double camera_fx = 363.4980;
+
+			const double camera_fy = 365.6199;
+
+
+
+			// 显示
+			imshow("rgb", i_depthToRgb);
+			std::stringstream str1;
+			if (countrgb < 2)
+			{
+				str1 << "C:/vsprojects/test/res/rgb/" << countrgb << ".png";
+				countrgb++;
+				imwrite(str1.str(), i_depthToRgb);
+			}
+			//std::cout << str1.str();
+
+			//imwrite("C:/vsprojects/test/res/rgb/2.png", i_depthToRgb);
+
+
+			if (waitKey(1) == VK_ESCAPE)
+				break;
+			//cv::equalizeHist(i_depth, i_depth);//均衡化，为了提高显示效果
+			imshow("depth", i_depth);
+			//Mat img32BIT;
+			////float scaleFactor = 1.0; // Or what you want 
+			//i_depth.convertTo(img32BIT, CV_32S, 1.0 / 65535.0f);
+
+			std::stringstream str2;
+			if (countdepth <2)
+			{
+				str2 << "C:/vsprojects/test/res/depth/" << countdepth << ".png";
+				countdepth++;
+				imwrite(str2.str(), i_depth);
+			}
+
+			//imwrite("C:/vsprojects/cvtest/cvtest/result/depth/yqydepth.png", i_depth);
+
+			/*cv::Mat rgb;
+			std::stringstream strrgb;
+			strrgb << "C:/vsprojects/marchingcubes/open3d3/Open3D/examples/Python/Advanced/realdata/four512424/rgb/1.png";
+			rgb = cv::imread(strrgb.str());*/
+
+
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+			//遍历深度图
+
+			for (int m = 0; m<i_depth.rows; m++)
+				for (int n = 0; n<i_depth.cols; n++)
+				{
+					//获取深度图中(m,n)处的值
+					ushort d = i_depth.ptr<ushort>(m)[n];
+					//d可能没有值，若如此，跳过此点
+					if (d == 0)
+						continue;
+					//d存在值，则向点云增加一个点
+					//PointT p;
+					pcl::PointXYZRGB p;
+
+					//计算这个点的空间坐标
+
+					//p.z = double(d); 
+					p.z = double(d) / camera_factor;
+					/*p.x = n ;
+
+					p.y = m ;
+					*/
+					p.x = (n - camera_cx)*p.z / camera_fx;
+
+					p.y = -(m - camera_cy)*p.z / camera_fy;
+
+					//从rgb图像中获取它的颜色
+
+					//rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
+
+					
+					/*p.b = i_rgb_3channel.ptr<uchar>(m)[n * 3];
+
+					p.g = i_rgb_3channel.ptr<uchar>(m)[n * 3 + 1];
+
+					p.r = i_rgb_3channel.ptr<uchar>(m)[n * 3 + 2];*/
+
+					/*
+					p.b = rgb.ptr<uchar>(m)[n * 3];
+
+					p.g = rgb.ptr<uchar>(m)[n * 3 + 1];
+
+					p.r = rgb.ptr<uchar>(m)[n * 3 + 2];*/
+
+					//注意注意，因为是CV_8UC4,所以要改成n * 4而不是n*3
+					//注意注意，要用对齐后的RGB图，也就是i_depthToRgb而不是i_rgb
+					p.b = i_depthToRgb.ptr<uchar>(m)[n * 4];
+
+					p.g = i_depthToRgb.ptr<uchar>(m)[n * 4 + 1];
+
+					p.r = i_depthToRgb.ptr<uchar>(m)[n * 4 + 2];
+					/*p.b = i_rgb.ptr<uchar>(m)[n * 3];
+
+					p.g = i_rgb.ptr<uchar>(m)[n * 3 + 1];
+
+					p.r = i_rgb.ptr<uchar>(m)[n * 3 + 2];*/
+
+					//把p加入到点云中
+
+					cloud->points.push_back(p);
+
+				}
+
+			//设置并保存点云
+
+			cloud->height = 1;
+
+			cloud->width = cloud->points.size();
+
+			cout << "point cloud size=" << cloud->points.size() << endl;
+
+			cloud->is_dense = false;
+
+			//pcl::io::savePCDFile("C:/vsprojects/cvtest/cvtest/pointcloudyqy190509input.pcd", *cloud);
+			pcl::PLYWriter writer;
+			writer.write("C:/vsprojects/test/res/mymethod2.ply", *cloud);
+
+			//清楚数据并保存
+
+			cloud->points.clear();
+
+			cout << "Point cloud saved." << endl;
+
+
+
+
+
+
+
+			if (waitKey(1) == VK_ESCAPE)
+				break;
+			imshow("ir", i_ir);
+			if (waitKey(1) == VK_ESCAPE)
+				break;
+
+			/*cv::Mat testimg;
+			testimg = cv::imread("C:/vsprojects/test/res/1.png");*/
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZRGB>);
+			getPointCloudFromImage(i_depth, i_rgb, *cloud_out);
+			//getPointCloudFromImage(i_depth, rgb, *cloud_out);
+			pcl::PLYWriter writer2;
+			writer2.write("C:/vsprojects/test/res/kenectmethod2.ply", *cloud_out);//kinect自带MapDepthFrameToCameraSpace转点云
+
+
+			/*pcl::visualization::CloudViewer viewerG("Cloud Viewe");
 			viewerG.runOnVisualizationThreadOnce(viewerOneOff);
 			viewerG.showCloud(cloud_out);*/
 			if (cv::waitKey(30) == VK_ESCAPE) break;
