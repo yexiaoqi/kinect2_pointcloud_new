@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#if 1
+#if 0
 //深度图和rgb图转化为点云,现在改成了直接存为ply而不是pcd格式
 #include<iostream>
 
